@@ -1,6 +1,6 @@
 # Lakshmi Manya Eleti
 
-![Headshot](headshot.jpg)
+![Headshot](Headshot.jpg)
 
 Maryland, USA  
 +1 410-500-0133  
