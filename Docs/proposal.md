@@ -15,6 +15,10 @@ The proposed project aims at learning about the potential impact of data prepara
 
 The project performs a comparison of the effects of each set of features on model accuracy, stability and interpretability by first creating several versions of features starting with basic raw values and then moving up to more specific behavioral patterns. It aims to demonstrate that careful feature engineering can help a lot in enhancing the performance of models, whereas too much or badly engineered features can decrease reliability. This aids in bringing out the significance of data interpretation and feature development in the real-world machine learning practice.
 
+**Machine Learning Models**
+
+The models that will be employed in this project are **Logistic Regression** and **Random Forest model**. The models are understandable, consistent, and prevalent in the academic literature. The fact that the analysis was based on these models only means that the focus was directed towards these models and no comparison was made between the algorithms. **Accuracy** and **ROC-AUC** will be used to measure model performance.
+
 - **Why does it matter?**
 
 The improvement of machine learning with feature engineering has significant contribution, but it is usually ignored in favor of more complicated algorithms. The importance of this project is that it demonstrates the impact of varying engineering of features in a clear and organised manner on the performance, stability and interpretability of a model.
@@ -103,4 +107,4 @@ Each row represents one individual credit card customer, including their:
 **Which variables/columns may be selected as features/predictors for your ML models?**
 - The model will use information such as a **customer’s credit limit**, **monthly bill amounts**, **payment amounts** and **repayment history**.
 - These variables will be transformed into meaningful features that reflect how customers use and repay credit over time.
-- The target variable will not be used as an input feature.
+- The target is excluded from predictor construction
