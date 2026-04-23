@@ -1,7 +1,7 @@
-import streamlit as st
+import os
 import numpy as np
 import joblib
-import os
+import streamlit as st
 
 # -------------------------------
 # CONFIG
@@ -17,16 +17,23 @@ st.set_page_config(
 # -------------------------------
 BASE_DIR = os.path.dirname(__file__)
 
-model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
-scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
+model_path = os.path.join(BASE_DIR, "model.pkl")
+scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
+
+model = joblib.load(model_path)
+scaler = joblib.load(scaler_path)
 
 # -------------------------------
 # HEADER
 # -------------------------------
 st.title("💳 Credit Default Risk Predictor")
-st.markdown("### AI-powered financial risk assessment")
+st.markdown(
+    """
+Predict whether a customer is likely to default on their credit card payment.
 
-st.info("🎯 Focus: Detect high-risk customers (recall over accuracy)")
+**Key Idea:** We prioritize **recall for defaulters (high-risk customers)** over raw accuracy.
+"""
+)
 
 st.divider()
 
@@ -36,95 +43,83 @@ st.divider()
 col1, col2 = st.columns(2)
 
 # -------------------------------
-# CUSTOMER PROFILE
+# LEFT COLUMN
 # -------------------------------
 with col1:
     st.subheader("👤 Customer Profile")
 
-    limit_bal = st.text_input("Credit Limit ($)", value="0")
-    age = st.slider("Age", 18, 80, 18)
+    limit_bal = st.number_input("Credit Limit ($)", min_value=0, value=0)
+    age = st.slider("Age", 18, 100, 18)
 
-    sex = st.selectbox("Sex", ["Male", "Female"])
+    # --- SEX ---
+    sex = st.selectbox(
+        "Sex",
+        ["Select...", "Male", "Female"]
+    )
 
+    # --- EDUCATION ---
     education = st.selectbox(
         "Education Level",
-        ["Graduate School", "University", "High School", "Other"]
+        ["Select...", "Graduate School", "University", "High School", "Others"]
     )
 
+    # --- MARRIAGE ---
     marriage = st.selectbox(
         "Marital Status",
-        ["Single", "Married", "Other"]
+        ["Select...", "Married", "Single", "Others"]
     )
 
 # -------------------------------
-# FINANCIAL BEHAVIOR
+# RIGHT COLUMN
 # -------------------------------
 with col2:
-    st.subheader("📊 Payment Behavior")
+    st.subheader("📊 Financial Behavior")
 
-    payment_options = {
-        "On Time": 0,
-        "1 Month Late": 1,
-        "2 Months Late": 2,
-        "3+ Months Late": 3
-    }
+    pay_0 = st.slider("Recent Payment Status (Last Month)", -2, 8, 0)
+    pay_2 = st.slider("Payment Status (2 Months Ago)", -2, 8, 0)
+    pay_3 = st.slider("Payment Status (3 Months Ago)", -2, 8, 0)
+    pay_4 = st.slider("Payment Status (4 Months Ago)", -2, 8, 0)
+    pay_5 = st.slider("Payment Status (5 Months Ago)", -2, 8, 0)
+    pay_6 = st.slider("Payment Status (6 Months Ago)", -2, 8, 0)
 
-    pay_0 = payment_options[st.selectbox("Recent Payment (Last Month)", list(payment_options.keys()))]
-    pay_2 = payment_options[st.selectbox("2 Months Ago", list(payment_options.keys()))]
-    pay_3 = payment_options[st.selectbox("3 Months Ago", list(payment_options.keys()))]
-    pay_4 = payment_options[st.selectbox("4 Months Ago", list(payment_options.keys()))]
-    pay_5 = payment_options[st.selectbox("5 Months Ago", list(payment_options.keys()))]
-    pay_6 = payment_options[st.selectbox("6 Months Ago", list(payment_options.keys()))]
+    avg_bill = st.number_input("Average Bill Amount ($)", value=0.0)
+    avg_payment = st.number_input("Average Payment Amount ($)", value=0.0)
 
-    st.markdown("#### 💰 Financial Summary")
-
-    avg_bill = st.text_input("Average Monthly Bill ($)", value="0")
-    avg_payment = st.text_input("Average Monthly Payment ($)", value="0")
-    avg_delay = st.text_input("Average Delay (Months)", value="0")
-    delay_count = st.text_input("Number of Delayed Payments", value="0")
+    avg_delay = st.number_input("Average Payment Delay", value=0.0)
+    delay_count = st.number_input("Number of Delays", value=0)
 
 st.divider()
 
 # -------------------------------
-# SAFE CONVERSION
+# ENCODING
 # -------------------------------
-try:
-    limit_bal = float(limit_bal)
-    avg_bill = float(avg_bill)
-    avg_payment = float(avg_payment)
-    avg_delay = float(avg_delay)
-    delay_count = int(delay_count)
-except:
-    st.error("⚠️ Please enter valid numeric values")
-    st.stop()
+sex_val = None
+if sex == "Male":
+    sex_val = 1
+elif sex == "Female":
+    sex_val = 2
 
-# -------------------------------
-# ENCODING (MATCH MODEL)
-# -------------------------------
-
-# Sex
-sex_2 = 1 if sex == "Female" else 0
-
-# Education mapping
-education_map = {
+edu_map = {
     "Graduate School": 1,
     "University": 2,
     "High School": 3,
-    "Other": 4
+    "Others": 4
 }
-education_val = education_map[education]
+education_val = edu_map.get(education, None)
+
+mar_map = {
+    "Married": 1,
+    "Single": 2,
+    "Others": 3
+}
+marriage_val = mar_map.get(marriage, None)
+
+# One-hot encoding
+sex_2 = 1 if sex_val == 2 else 0
 
 education_2 = 1 if education_val == 2 else 0
 education_3 = 1 if education_val == 3 else 0
 education_4 = 1 if education_val == 4 else 0
-
-# Marriage mapping
-marriage_map = {
-    "Married": 1,
-    "Single": 2,
-    "Other": 3
-}
-marriage_val = marriage_map[marriage]
 
 marriage_2 = 1 if marriage_val == 2 else 0
 marriage_3 = 1 if marriage_val == 3 else 0
@@ -145,66 +140,55 @@ features = np.array([[
 # -------------------------------
 if st.button("🚀 Predict Risk"):
 
-    features_scaled = scaler.transform(features)
-
-    prediction = model.predict(features_scaled)[0]
-    probability = model.predict_proba(features_scaled)[0][1]
-
-    st.divider()
-    st.subheader("📊 Risk Analysis")
-
-    # Risk category
-    if probability > 0.7:
-        st.error("🔴 High Risk Customer")
-        risk_label = "High"
-    elif probability > 0.4:
-        st.warning("🟠 Moderate Risk Customer")
-        risk_label = "Moderate"
+    # Validation
+    if None in [sex_val, education_val, marriage_val]:
+        st.error("⚠️ Please select all required fields.")
     else:
-        st.success("🟢 Low Risk Customer")
-        risk_label = "Low"
+        features_scaled = scaler.transform(features)
 
-    # Probability display
-    st.write("### Default Probability")
-    st.progress(float(probability))
-    st.metric("Risk Score", f"{probability:.2%}")
+        prediction = model.predict(features_scaled)[0]
+        probability = model.predict_proba(features_scaled)[0][1]
 
-    # -------------------------------
-    # INSIGHTS
-    # -------------------------------
-    st.subheader("🧠 AI Insights")
+        st.divider()
+        st.subheader("📊 Prediction Result")
 
-    insights = []
+        # Result Display
+        if prediction == 1:
+            st.error("⚠️ High Risk of Default")
+        else:
+            st.success("✅ Low Risk of Default")
 
-    if delay_count > 2:
-        insights.append("Frequent payment delays detected")
-    if avg_delay > 1:
-        insights.append("Consistent payment delays")
-    if avg_payment < avg_bill:
-        insights.append("Payments are lower than billed amount")
-    if pay_0 >= 2:
-        insights.append("Recent payment behavior is risky")
+        # Probability
+        st.write("### Risk Probability")
+        st.progress(float(probability))
 
-    if len(insights) == 0:
-        insights.append("Customer shows stable financial behavior")
+        st.metric(
+            label="Default Probability",
+            value=f"{probability:.2%}"
+        )
 
-    for i in insights:
-        st.write(f"• {i}")
-
-    # -------------------------------
-    # FINAL DECISION
-    # -------------------------------
-    st.subheader("🏦 Recommendation")
-
-    if risk_label == "High":
-        st.error("❌ Do NOT approve credit")
-    elif risk_label == "Moderate":
-        st.warning("⚠️ Approve with caution")
-    else:
-        st.success("✅ Safe to approve")
+        # Interpretation
+        if probability > 0.7:
+            st.warning("Very high risk — strong chance of default.")
+        elif probability > 0.4:
+            st.info("Moderate risk — monitor customer behavior.")
+        else:
+            st.success("Low risk — customer is likely safe.")
 
 # -------------------------------
-# FOOTER
+# FOOTER INSIGHT
 # -------------------------------
 st.divider()
-st.markdown("Capstone Project • Machine Learning + Feature Engineering + Streamlit Deployment")
+
+st.subheader("📈 Model Insight")
+st.info(
+    """
+This model demonstrates how **feature engineering improves real-world performance**.
+
+• Accuracy remains ~81%  
+• Default detection (recall) improved significantly  
+• Focus is on catching high-risk customers  
+
+👉 In finance, **missing a defaulter is more costly than a false alarm**
+"""
+)
