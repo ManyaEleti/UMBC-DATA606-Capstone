@@ -3,8 +3,8 @@ import numpy as np
 import joblib
 
 # Load model and scaler
-model = joblib.load("model.pkl")
-scaler = joblib.load("scaler.pkl")
+model = joblib.load("../model.pkl")
+scaler = joblib.load("../scaler.pkl")
 
 st.set_page_config(page_title="Credit Default Predictor", layout="centered")
 
