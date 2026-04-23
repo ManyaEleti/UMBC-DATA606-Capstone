@@ -36,18 +36,25 @@ st.divider()
 col1, col2 = st.columns(2)
 
 # -------------------------------
-# CUSTOMER INFO
+# CUSTOMER PROFILE
 # -------------------------------
 with col1:
     st.subheader("👤 Customer Profile")
 
-    # NO +/- buttons
     limit_bal = st.text_input("Credit Limit ($)", value="0")
     age = st.slider("Age", 18, 80, 18)
 
-    sex = st.selectbox("Sex", [1, 2])
-    education = st.selectbox("Education Level", [1, 2, 3, 4])
-    marriage = st.selectbox("Marital Status", [1, 2, 3])
+    sex = st.selectbox("Sex", ["Male", "Female"])
+
+    education = st.selectbox(
+        "Education Level",
+        ["Graduate School", "University", "High School", "Other"]
+    )
+
+    marriage = st.selectbox(
+        "Marital Status",
+        ["Single", "Married", "Other"]
+    )
 
 # -------------------------------
 # FINANCIAL BEHAVIOR
@@ -92,16 +99,35 @@ except:
     st.stop()
 
 # -------------------------------
-# ENCODING (UNCHANGED)
+# ENCODING (MATCH MODEL)
 # -------------------------------
-sex_2 = 1 if sex == 2 else 0
 
-education_2 = 1 if education == 2 else 0
-education_3 = 1 if education == 3 else 0
-education_4 = 1 if education == 4 else 0
+# Sex
+sex_2 = 1 if sex == "Female" else 0
 
-marriage_2 = 1 if marriage == 2 else 0
-marriage_3 = 1 if marriage == 3 else 0
+# Education mapping
+education_map = {
+    "Graduate School": 1,
+    "University": 2,
+    "High School": 3,
+    "Other": 4
+}
+education_val = education_map[education]
+
+education_2 = 1 if education_val == 2 else 0
+education_3 = 1 if education_val == 3 else 0
+education_4 = 1 if education_val == 4 else 0
+
+# Marriage mapping
+marriage_map = {
+    "Married": 1,
+    "Single": 2,
+    "Other": 3
+}
+marriage_val = marriage_map[marriage]
+
+marriage_2 = 1 if marriage_val == 2 else 0
+marriage_3 = 1 if marriage_val == 3 else 0
 
 # -------------------------------
 # FEATURE VECTOR
@@ -127,9 +153,7 @@ if st.button("🚀 Predict Risk"):
     st.divider()
     st.subheader("📊 Risk Analysis")
 
-    # -------------------------------
-    # RISK CATEGORY
-    # -------------------------------
+    # Risk category
     if probability > 0.7:
         st.error("🔴 High Risk Customer")
         risk_label = "High"
@@ -140,9 +164,7 @@ if st.button("🚀 Predict Risk"):
         st.success("🟢 Low Risk Customer")
         risk_label = "Low"
 
-    # -------------------------------
-    # PROBABILITY
-    # -------------------------------
+    # Probability display
     st.write("### Default Probability")
     st.progress(float(probability))
     st.metric("Risk Score", f"{probability:.2%}")
@@ -159,18 +181,18 @@ if st.button("🚀 Predict Risk"):
     if avg_delay > 1:
         insights.append("Consistent payment delays")
     if avg_payment < avg_bill:
-        insights.append("Payments lower than billed amount")
+        insights.append("Payments are lower than billed amount")
     if pay_0 >= 2:
         insights.append("Recent payment behavior is risky")
 
     if len(insights) == 0:
-        insights.append("Customer shows stable behavior")
+        insights.append("Customer shows stable financial behavior")
 
     for i in insights:
         st.write(f"• {i}")
 
     # -------------------------------
-    # DECISION
+    # FINAL DECISION
     # -------------------------------
     st.subheader("🏦 Recommendation")
 
@@ -185,4 +207,4 @@ if st.button("🚀 Predict Risk"):
 # FOOTER
 # -------------------------------
 st.divider()
-st.markdown("Capstone Project • Machine Learning + Feature Engineering + Streamlit")
+st.markdown("Capstone Project • Machine Learning + Feature Engineering + Streamlit Deployment")
