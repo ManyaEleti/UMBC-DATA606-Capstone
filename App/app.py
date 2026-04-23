@@ -17,11 +17,8 @@ st.set_page_config(
 # -------------------------------
 BASE_DIR = os.path.dirname(__file__)
 
-model_path = os.path.join(BASE_DIR, "model.pkl")
-scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
-
-model = joblib.load(model_path)
-scaler = joblib.load(scaler_path)
+model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
+scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
 # HEADER
@@ -41,61 +38,72 @@ st.divider()
 col1, col2 = st.columns(2)
 
 # -------------------------------
-# LEFT COLUMN (PROFILE)
+# LEFT COLUMN
 # -------------------------------
 with col1:
     st.subheader("👤 Customer Profile")
 
-    # Credit Limit (TEXT INPUT - CLEAN)
+    # Credit Limit (clean input)
     limit_bal = st.text_input("Credit Limit ($)", value="0")
     try:
         limit_bal = float(limit_bal)
     except:
         limit_bal = 0
 
-    # Age (NUMBER INPUT - CLEAN UX)
-    age = st.number_input(
-        "Age",
-        min_value=18,
-        max_value=100,
-        value=25,
-        step=1
-    )
+    # Age (better UX)
+    age = st.number_input("Age", min_value=18, max_value=100, value=25)
 
-    # SEX
-    sex = st.selectbox(
-        "Sex",
-        ["Select...", "Male", "Female"]
-    )
+    # Sex
+    sex = st.selectbox("Sex", ["Select...", "Male", "Female"])
 
-    # EDUCATION
+    # Education
     education = st.selectbox(
         "Education Level",
         ["Select...", "Graduate School", "University", "High School", "Others"]
     )
 
-    # MARRIAGE
+    # Marital Status
     marriage = st.selectbox(
         "Marital Status",
         ["Select...", "Married", "Single", "Others"]
     )
 
 # -------------------------------
-# RIGHT COLUMN (BEHAVIOR)
+# PAYMENT STATUS OPTIONS
+# -------------------------------
+payment_options = {
+    "No delay / Paid early": -2,
+    "Paid on time": 0,
+    "1 month delay": 1,
+    "2 months delay": 2,
+    "3 months delay": 3,
+    "4 months delay": 4,
+    "5 months delay": 5,
+    "6+ months delay": 6
+}
+
+# -------------------------------
+# RIGHT COLUMN
 # -------------------------------
 with col2:
     st.subheader("📊 Financial Behavior")
 
-    pay_0 = st.slider("Recent Payment Status (Last Month)", -2, 8, 0)
-    pay_2 = st.slider("Payment Status (2 Months Ago)", -2, 8, 0)
-    pay_3 = st.slider("Payment Status (3 Months Ago)", -2, 8, 0)
-    pay_4 = st.slider("Payment Status (4 Months Ago)", -2, 8, 0)
-    pay_5 = st.slider("Payment Status (5 Months Ago)", -2, 8, 0)
-    pay_6 = st.slider("Payment Status (6 Months Ago)", -2, 8, 0)
+    pay_0_label = st.selectbox("Recent Payment Status (Last Month)", ["Select..."] + list(payment_options.keys()))
+    pay_2_label = st.selectbox("Payment Status (2 Months Ago)", ["Select..."] + list(payment_options.keys()))
+    pay_3_label = st.selectbox("Payment Status (3 Months Ago)", ["Select..."] + list(payment_options.keys()))
+    pay_4_label = st.selectbox("Payment Status (4 Months Ago)", ["Select..."] + list(payment_options.keys()))
+    pay_5_label = st.selectbox("Payment Status (5 Months Ago)", ["Select..."] + list(payment_options.keys()))
+    pay_6_label = st.selectbox("Payment Status (6 Months Ago)", ["Select..."] + list(payment_options.keys()))
+
+    pay_0 = payment_options.get(pay_0_label)
+    pay_2 = payment_options.get(pay_2_label)
+    pay_3 = payment_options.get(pay_3_label)
+    pay_4 = payment_options.get(pay_4_label)
+    pay_5 = payment_options.get(pay_5_label)
+    pay_6 = payment_options.get(pay_6_label)
 
     avg_bill = st.number_input("Average Bill Amount ($)", value=0.0)
     avg_payment = st.number_input("Average Payment Amount ($)", value=0.0)
-
     avg_delay = st.number_input("Average Payment Delay", value=0.0)
     delay_count = st.number_input("Number of Delays", value=0)
 
@@ -104,11 +112,7 @@ st.divider()
 # -------------------------------
 # ENCODING
 # -------------------------------
-sex_val = None
-if sex == "Male":
-    sex_val = 1
-elif sex == "Female":
-    sex_val = 2
+sex_val = 1 if sex == "Male" else 2 if sex == "Female" else None
 
 edu_map = {
     "Graduate School": 1,
@@ -116,14 +120,14 @@ edu_map = {
     "High School": 3,
     "Others": 4
 }
-education_val = edu_map.get(education, None)
+education_val = edu_map.get(education)
 
 mar_map = {
     "Married": 1,
     "Single": 2,
     "Others": 3
 }
-marriage_val = mar_map.get(marriage, None)
+marriage_val = mar_map.get(marriage)
 
 # One-hot encoding
 sex_2 = 1 if sex_val == 2 else 0
@@ -136,25 +140,24 @@ marriage_2 = 1 if marriage_val == 2 else 0
 marriage_3 = 1 if marriage_val == 3 else 0
 
 # -------------------------------
-# FEATURE VECTOR
-# -------------------------------
-features = np.array([[
-    limit_bal, age,
-    pay_0, pay_2, pay_3, pay_4, pay_5, pay_6,
-    avg_bill, avg_payment, avg_delay, delay_count,
-    sex_2, education_2, education_3, education_4,
-    marriage_2, marriage_3
-]])
-
-# -------------------------------
 # PREDICTION
 # -------------------------------
 if st.button("🚀 Predict Risk"):
 
-    # Validation
-    if None in [sex_val, education_val, marriage_val]:
-        st.error("⚠️ Please fill all required fields.")
+    if None in [
+        sex_val, education_val, marriage_val,
+        pay_0, pay_2, pay_3, pay_4, pay_5, pay_6
+    ]:
+        st.error("⚠️ Please complete all required fields.")
     else:
+        features = np.array([[
+            limit_bal, age,
+            pay_0, pay_2, pay_3, pay_4, pay_5, pay_6,
+            avg_bill, avg_payment, avg_delay, delay_count,
+            sex_2, education_2, education_3, education_4,
+            marriage_2, marriage_3
+        ]])
+
         features_scaled = scaler.transform(features)
 
         prediction = model.predict(features_scaled)[0]
@@ -171,10 +174,7 @@ if st.button("🚀 Predict Risk"):
         st.write("### Risk Probability")
         st.progress(float(probability))
 
-        st.metric(
-            label="Default Probability",
-            value=f"{probability:.2%}"
-        )
+        st.metric("Default Probability", f"{probability:.2%}")
 
         if probability > 0.7:
             st.warning("Very high risk — strong chance of default.")
