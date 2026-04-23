@@ -1,21 +1,13 @@
-import streamlit as st
-import numpy as np
+import os
 import joblib
 
-# -------------------------------
-# PAGE CONFIG
-# -------------------------------
-st.set_page_config(
-    page_title="Credit Risk Predictor",
-    page_icon="💳",
-    layout="wide"
-)
+BASE_DIR = os.path.dirname(__file__)
 
-# -------------------------------
-# LOAD MODEL
-# -------------------------------
-model = joblib.load("../model.pkl")
-scaler = joblib.load("../scaler.pkl")
+model_path = os.path.join(BASE_DIR, "model.pkl")
+scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
+
+model = joblib.load(model_path)
+scaler = joblib.load(scaler_path)
 
 # -------------------------------
 # HEADER
