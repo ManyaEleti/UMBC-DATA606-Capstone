@@ -1,45 +1,19 @@
 import streamlit as st
 import numpy as np
-import os
 import joblib
+import os
 
 # -------------------------------
-# PAGE CONFIG (LIGHT MODE)
+# CONFIG (LIGHT MODE + CLEAN UI)
 # -------------------------------
 st.set_page_config(
     page_title="Credit Risk Predictor",
-    layout="wide",
+    page_icon="💳",
+    layout="wide"
 )
 
 # -------------------------------
-# CUSTOM LIGHT THEME
-# -------------------------------
-st.markdown("""
-<style>
-body {
-    background-color: #f7f9fc;
-}
-.block-container {
-    padding-top: 2rem;
-}
-h1, h2, h3 {
-    color: #1f4e79;
-}
-.stButton>button {
-    background-color: #1f77b4;
-    color: white;
-    border-radius: 8px;
-    height: 3em;
-    width: 100%;
-}
-.stButton>button:hover {
-    background-color: #125a94;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# -------------------------------
-# LOAD MODEL
+# LOAD MODEL + SCALER
 # -------------------------------
 BASE_DIR = os.path.dirname(__file__)
 
@@ -47,62 +21,105 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
+# CUSTOM CSS (PREMIUM LOOK)
+# -------------------------------
+st.markdown("""
+<style>
+.main {
+    background-color: #f8fafc;
+}
+.block-container {
+    padding-top: 2rem;
+}
+h1 {
+    color: #1e3a8a;
+}
+.stButton>button {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-size: 16px;
+}
+.stButton>button:hover {
+    background-color: #1d4ed8;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# -------------------------------
 # HEADER
 # -------------------------------
 st.title("💳 Credit Default Risk Predictor")
-st.markdown("""
-This application predicts whether a customer is likely to default on their credit card payment.
+st.markdown("### Smart risk assessment for financial decision-making")
 
-**Key Idea:**  
-We prioritize **recall for defaulters** (high-risk customers), not just accuracy.
-""")
+st.info("🎯 **Goal:** Identify high-risk customers early (focus on recall, not just accuracy)")
 
 st.divider()
 
 # -------------------------------
-# INPUT SECTION
+# LAYOUT
 # -------------------------------
 col1, col2 = st.columns(2)
 
+# -------------------------------
+# CUSTOMER INFO
+# -------------------------------
 with col1:
-    st.subheader("👤 Customer Information")
+    st.subheader("👤 Customer Profile")
 
-    limit_bal = st.number_input("Credit Limit", value=20000)
+    limit_bal = st.number_input("Credit Limit ($)", value=20000)
     age = st.number_input("Age", value=30)
 
-    sex = st.selectbox("Sex", [1, 2])
-    education = st.selectbox("Education Level", [1, 2, 3, 4])
-    marriage = st.selectbox("Marital Status", [1, 2, 3])
+    sex = st.selectbox("Gender", ["Male", "Female"])
+    education = st.selectbox("Education Level", ["Graduate", "University", "High School", "Other"])
+    marriage = st.selectbox("Marital Status", ["Single", "Married", "Other"])
 
+# -------------------------------
+# FINANCIAL BEHAVIOR
+# -------------------------------
 with col2:
-    st.subheader("📊 Financial Behavior")
+    st.subheader("📊 Payment Behavior")
 
-    pay_0 = st.slider("Recent Payment Status (PAY_0)", -2, 8, 0)
-    pay_2 = st.slider("PAY_2", -2, 8, 0)
-    pay_3 = st.slider("PAY_3", -2, 8, 0)
-    pay_4 = st.slider("PAY_4", -2, 8, 0)
-    pay_5 = st.slider("PAY_5", -2, 8, 0)
-    pay_6 = st.slider("PAY_6", -2, 8, 0)
+    payment_options = {
+        "Paid Early": -1,
+        "On Time": 0,
+        "1 Month Late": 1,
+        "2 Months Late": 2,
+        "3+ Months Late": 3
+    }
 
-    avg_bill = st.number_input("Average Bill Amount", value=5000.0)
-    avg_payment = st.number_input("Average Payment", value=2000.0)
+    pay_0 = payment_options[st.selectbox("Recent Payment (Last Month)", list(payment_options.keys()))]
+    pay_2 = payment_options[st.selectbox("2 Months Ago", list(payment_options.keys()))]
+    pay_3 = payment_options[st.selectbox("3 Months Ago", list(payment_options.keys()))]
+    pay_4 = payment_options[st.selectbox("4 Months Ago", list(payment_options.keys()))]
+    pay_5 = payment_options[st.selectbox("5 Months Ago", list(payment_options.keys()))]
+    pay_6 = payment_options[st.selectbox("6 Months Ago", list(payment_options.keys()))]
 
-    avg_delay = st.number_input("Average Delay", value=0.0)
-    delay_count = st.number_input("Delay Count", value=0)
+    st.markdown("#### 💰 Financial Summary")
+    avg_bill = st.number_input("Average Monthly Bill ($)", value=5000.0)
+    avg_payment = st.number_input("Average Monthly Payment ($)", value=2000.0)
+    avg_delay = st.number_input("Average Delay (Months)", value=0.0)
+    delay_count = st.number_input("Number of Delayed Payments", value=0)
 
 st.divider()
 
 # -------------------------------
 # ENCODING
 # -------------------------------
-sex_2 = 1 if sex == 2 else 0
+sex_2 = 1 if sex == "Female" else 0
 
-education_2 = 1 if education == 2 else 0
-education_3 = 1 if education == 3 else 0
-education_4 = 1 if education == 4 else 0
+education_map = {
+    "University": 2,
+    "Graduate": 3,
+    "High School": 4
+}
+education_2 = 1 if education_map.get(education) == 2 else 0
+education_3 = 1 if education_map.get(education) == 3 else 0
+education_4 = 1 if education_map.get(education) == 4 else 0
 
-marriage_2 = 1 if marriage == 2 else 0
-marriage_3 = 1 if marriage == 3 else 0
+marriage_2 = 1 if marriage == "Married" else 0
+marriage_3 = 1 if marriage == "Other" else 0
 
 # -------------------------------
 # FEATURE VECTOR
@@ -116,7 +133,7 @@ features = np.array([[
 ]])
 
 # -------------------------------
-# PREDICTION
+# PREDICT BUTTON
 # -------------------------------
 if st.button("🚀 Predict Risk"):
 
@@ -126,78 +143,66 @@ if st.button("🚀 Predict Risk"):
     probability = model.predict_proba(features_scaled)[0][1]
 
     st.divider()
-    st.subheader("📊 Prediction Result")
+    st.subheader("📊 Risk Analysis")
 
     # -------------------------------
-    # RESULT
-    # -------------------------------
-    if prediction == 1:
-        st.error("⚠️ High Risk of Default")
-    else:
-        st.success("✅ Low Risk of Default")
-
-    # -------------------------------
-    # PROBABILITY
-    # -------------------------------
-    st.write("### Risk Probability")
-    st.progress(float(probability))
-
-    st.metric(
-        label="Default Probability",
-        value=f"{probability:.2%}"
-    )
-
-    # -------------------------------
-    # INTERPRETATION
+    # RISK CATEGORY
     # -------------------------------
     if probability > 0.7:
-        st.warning("Very high risk — strong chance of default.")
+        st.error("🔴 High Risk Customer")
+        risk_label = "High"
     elif probability > 0.4:
-        st.info("Moderate risk — monitor customer behavior.")
+        st.warning("🟠 Moderate Risk Customer")
+        risk_label = "Moderate"
     else:
-        st.success("Low risk — customer is likely safe.")
+        st.success("🟢 Low Risk Customer")
+        risk_label = "Low"
 
     # -------------------------------
-    # FEATURE INSIGHTS
+    # PROGRESS BAR
     # -------------------------------
-    st.divider()
-    st.subheader("🔍 Key Risk Drivers")
+    st.write("### Default Probability")
+    st.progress(float(probability))
+    st.metric("Risk Score", f"{probability:.2%}")
 
-    reasons = []
+    # -------------------------------
+    # SMART INSIGHTS
+    # -------------------------------
+    st.subheader("🧠 AI Insights")
 
-    if pay_0 > 2:
-        reasons.append("Recent payment delays are high")
-    if delay_count > 3:
-        reasons.append("Frequent past delays detected")
-    if avg_payment < avg_bill:
-        reasons.append("Payments are lower than bills")
+    insights = []
+
+    if delay_count > 2:
+        insights.append("Frequent payment delays detected")
     if avg_delay > 1:
-        reasons.append("Average delay is significant")
+        insights.append("Customer consistently delays payments")
+    if avg_payment < avg_bill:
+        insights.append("Payments are lower than billed amount")
+    if pay_0 >= 2:
+        insights.append("Recent payment behavior indicates high risk")
 
-    if reasons:
-        for r in reasons:
-            st.write(f"• {r}")
+    if len(insights) == 0:
+        insights.append("Customer shows stable financial behavior")
+
+    for i in insights:
+        st.write(f"• {i}")
+
+    # -------------------------------
+    # FINAL DECISION BLOCK
+    # -------------------------------
+    st.subheader("🏦 Recommendation")
+
+    if risk_label == "High":
+        st.error("❌ Do NOT approve credit increase")
+    elif risk_label == "Moderate":
+        st.warning("⚠️ Approve with caution")
     else:
-        st.write("No major risk signals detected")
-
-# -------------------------------
-# MODEL INSIGHT SECTION
-# -------------------------------
-st.divider()
-st.subheader("📈 Model Insight")
-
-st.info("""
-This model demonstrates how **feature engineering improves real-world performance**.
-
-• Accuracy remains ~81%  
-• Default detection (recall) improved from **29% → 56%**  
-
-👉 This shows that **accuracy alone is misleading** in imbalanced datasets.  
-👉 Detecting high-risk customers is more important than overall accuracy.
-""")
+        st.success("✅ Safe to approve")
 
 # -------------------------------
 # FOOTER
 # -------------------------------
-st.markdown("---")
-st.markdown("Built for Capstone Project • Machine Learning + Streamlit Deployment")
+st.divider()
+st.markdown(
+    "Built for Capstone Project • Machine Learning + Feature Engineering + Streamlit Deployment"
+)
