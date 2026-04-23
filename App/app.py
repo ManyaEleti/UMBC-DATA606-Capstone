@@ -27,13 +27,11 @@ scaler = joblib.load(scaler_path)
 # HEADER
 # -------------------------------
 st.title("💳 Credit Default Risk Predictor")
-st.markdown(
-    """
+st.markdown("""
 Predict whether a customer is likely to default on their credit card payment.
 
-**Key Idea:** We prioritize **recall for defaulters (high-risk customers)** over raw accuracy.
-"""
-)
+**Key Idea:** We prioritize **recall for defaulters (high-risk customers)** over accuracy.
+""")
 
 st.divider()
 
@@ -43,34 +41,47 @@ st.divider()
 col1, col2 = st.columns(2)
 
 # -------------------------------
-# LEFT COLUMN
+# LEFT COLUMN (PROFILE)
 # -------------------------------
 with col1:
     st.subheader("👤 Customer Profile")
 
-    limit_bal = st.number_input("Credit Limit ($)", min_value=0, value=0)
-    age = st.slider("Age", 18, 100, 18)
+    # Credit Limit (TEXT INPUT - CLEAN)
+    limit_bal = st.text_input("Credit Limit ($)", value="0")
+    try:
+        limit_bal = float(limit_bal)
+    except:
+        limit_bal = 0
 
-    # --- SEX ---
+    # Age (NUMBER INPUT - CLEAN UX)
+    age = st.number_input(
+        "Age",
+        min_value=18,
+        max_value=100,
+        value=25,
+        step=1
+    )
+
+    # SEX
     sex = st.selectbox(
         "Sex",
         ["Select...", "Male", "Female"]
     )
 
-    # --- EDUCATION ---
+    # EDUCATION
     education = st.selectbox(
         "Education Level",
         ["Select...", "Graduate School", "University", "High School", "Others"]
     )
 
-    # --- MARRIAGE ---
+    # MARRIAGE
     marriage = st.selectbox(
         "Marital Status",
         ["Select...", "Married", "Single", "Others"]
     )
 
 # -------------------------------
-# RIGHT COLUMN
+# RIGHT COLUMN (BEHAVIOR)
 # -------------------------------
 with col2:
     st.subheader("📊 Financial Behavior")
@@ -142,7 +153,7 @@ if st.button("🚀 Predict Risk"):
 
     # Validation
     if None in [sex_val, education_val, marriage_val]:
-        st.error("⚠️ Please select all required fields.")
+        st.error("⚠️ Please fill all required fields.")
     else:
         features_scaled = scaler.transform(features)
 
@@ -152,13 +163,11 @@ if st.button("🚀 Predict Risk"):
         st.divider()
         st.subheader("📊 Prediction Result")
 
-        # Result Display
         if prediction == 1:
             st.error("⚠️ High Risk of Default")
         else:
             st.success("✅ Low Risk of Default")
 
-        # Probability
         st.write("### Risk Probability")
         st.progress(float(probability))
 
@@ -167,28 +176,25 @@ if st.button("🚀 Predict Risk"):
             value=f"{probability:.2%}"
         )
 
-        # Interpretation
         if probability > 0.7:
             st.warning("Very high risk — strong chance of default.")
         elif probability > 0.4:
-            st.info("Moderate risk — monitor customer behavior.")
+            st.info("Moderate risk — monitor closely.")
         else:
             st.success("Low risk — customer is likely safe.")
 
 # -------------------------------
-# FOOTER INSIGHT
+# FOOTER
 # -------------------------------
 st.divider()
 
 st.subheader("📈 Model Insight")
-st.info(
-    """
-This model demonstrates how **feature engineering improves real-world performance**.
+st.info("""
+This model demonstrates how **feature engineering improves performance**.
 
-• Accuracy remains ~81%  
-• Default detection (recall) improved significantly  
-• Focus is on catching high-risk customers  
+• Accuracy ~81%  
+• Recall improved significantly  
+• Focus on catching high-risk customers  
 
-👉 In finance, **missing a defaulter is more costly than a false alarm**
-"""
-)
+👉 In finance, missing a defaulter is more costly than a false alarm.
+""")
