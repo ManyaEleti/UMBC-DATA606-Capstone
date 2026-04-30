@@ -17,7 +17,7 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # =========================
-# LIGHT FINTECH UI CSS
+# LIGHT FINTECH UI CSS (UPDATED INPUTS)
 # =========================
 st.markdown("""
 <style>
@@ -69,6 +69,20 @@ label, p {
     color: #334155 !important;
 }
 
+/* 🔥 INPUT FIELDS (DARKER & CLEAN) */
+input, select, textarea {
+    background-color: #e2e8f0 !important;  /* darker than white */
+    color: #0f172a !important;
+    border: 1px solid #cbd5f5 !important;
+    border-radius: 8px !important;
+}
+
+/* Streamlit specific fix */
+[data-baseweb="input"] {
+    background-color: #e2e8f0 !important;
+    border-radius: 8px !important;
+}
+
 /* Button */
 .stButton > button {
     background: linear-gradient(135deg, #2563eb, #4f46e5);
@@ -95,7 +109,7 @@ st.markdown('<div class="subtitle">Real-time credit risk scoring powered by mach
 # =========================
 # MODEL PERFORMANCE
 # =========================
-st.subheader("🏆 Model Performance")
+st.subheader("Model Performance")
 
 models = ["Logistic", "Balanced Logistic", "Random Forest"]
 accuracy = [0.81, 0.76, 0.82]
@@ -125,13 +139,13 @@ st.success(f"Best model for risk detection: {best_model} (highest recall)")
 st.divider()
 
 # =========================
-# INPUT SECTION (NO EMPTY CARDS)
+# INPUT SECTION
 # =========================
 col1, col2 = st.columns(2)
 
 with col1:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("👤 Customer Profile")
+    st.subheader("Customer Profile")
 
     limit_bal = st.number_input("Credit Limit", value=0)
     age = st.number_input("Age", value=25)
@@ -144,7 +158,7 @@ with col1:
 
 with col2:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("📊 Financial Behavior")
+    st.subheader("Financial Behavior")
 
     pay_0 = st.selectbox("Recent Status", [-2, -1, 0, 1, 2, 3])
     pay_2 = st.selectbox("2 Months Ago", [-2, -1, 0, 1, 2])
@@ -183,13 +197,13 @@ features = np.array([[
 # =========================
 # PREDICTION
 # =========================
-if st.button("🚀 Predict Risk"):
+if st.button("Predict Risk"):
 
     features_scaled = scaler.transform(features)
     prediction = model.predict(features_scaled)[0]
     prob = model.predict_proba(features_scaled)[0][1]
 
-    st.subheader("📊 Prediction")
+    st.subheader("Prediction")
 
     if prediction == 1:
         st.error("High Risk Customer")
@@ -199,14 +213,14 @@ if st.button("🚀 Predict Risk"):
     st.metric("Default Probability", f"{prob:.2%}")
     st.progress(float(prob))
 
-    st.subheader("🧠 Insight")
+    st.subheader("Insight")
 
     if delay_count > 2:
         st.warning("High delay frequency increases risk")
     else:
         st.success("Stable repayment behavior")
 
-    st.subheader("💼 Recommended Action")
+    st.subheader("Recommended Action")
 
     if prob > 0.7:
         st.error("Reduce credit exposure")
