@@ -4,7 +4,6 @@ import joblib
 import os
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 # -------------------------------
 # CONFIG
@@ -16,26 +15,24 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
-# PREMIUM BACKGROUND + UI
+# COLOR PALETTE (FINTECH STYLE)
+# -------------------------------
+PRIMARY = "#0f172a"   # dark navy
+BLUE = "#1e3a8a"      # deep blue
+ACCENT = "#2563eb"    # bright blue
+RED = "#dc2626"       # risk
+GREEN = "#059669"     # safe
+GRAY = "#64748b"      # neutral
+
+# -------------------------------
+# CLEAN UI CSS
 # -------------------------------
 st.markdown("""
 <style>
-
-/* ===== BACKGROUND ===== */
 [data-testid="stAppViewContainer"] {
-    background:
-        radial-gradient(circle at 20% 20%, rgba(59,130,246,0.12), transparent 40%),
-        radial-gradient(circle at 80% 30%, rgba(37,99,235,0.10), transparent 40%),
-        radial-gradient(circle at 50% 80%, rgba(15,23,42,0.08), transparent 50%),
-        linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    background: #f8fafc;
 }
 
-/* REMOVE WHITE BLOCK */
-.block-container {
-    background: transparent !important;
-}
-
-/* HEADER */
 .header {
     background: linear-gradient(135deg, #0f172a, #1e3a8a);
     padding: 25px;
@@ -47,14 +44,12 @@ st.markdown("""
     margin-bottom: 20px;
 }
 
-/* BUTTON */
 .stButton>button {
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
     color: white;
     border-radius: 10px;
     font-size: 16px;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,13 +57,11 @@ st.markdown("""
 # HEADER
 # -------------------------------
 st.markdown('<div class="header">💳 Credit Risk Intelligence Dashboard</div>', unsafe_allow_html=True)
-
 st.markdown("AI-powered system to detect **high-risk customers** using machine learning")
-
 st.markdown("---")
 
 # =========================================================
-# 📊 TOP DASHBOARD
+# 📊 DASHBOARD (TOP)
 # =========================================================
 st.markdown("## 📊 Model Performance Dashboard")
 
@@ -94,7 +87,7 @@ fig1 = px.bar(
     x="Feature",
     y="Importance",
     color="Importance",
-    color_continuous_scale=["#0f172a", "#1e3a8a", "#2563eb", "#3b82f6"]
+    color_continuous_scale=[PRIMARY, BLUE, ACCENT]
 )
 
 fig1.update_layout(plot_bgcolor="white", paper_bgcolor="white")
@@ -121,9 +114,9 @@ fig2 = px.bar(
     color="variable",
     barmode="group",
     color_discrete_map={
-        "Accuracy": "#1e3a8a",
-        "Recall": "#dc2626",
-        "F1": "#059669"
+        "Accuracy": BLUE,
+        "Recall": RED,
+        "F1": GREEN
     }
 )
 
@@ -141,7 +134,7 @@ cm = np.array([[3828, 845],
 fig3 = px.imshow(
     cm,
     text_auto=True,
-    color_continuous_scale=["#0f172a", "#1e3a8a", "#3b82f6"]
+    color_continuous_scale=["#e2e8f0", ACCENT, PRIMARY]
 )
 
 fig3.update_layout(plot_bgcolor="white", paper_bgcolor="white")
@@ -158,11 +151,11 @@ roc_df = pd.DataFrame({
 })
 
 fig4 = px.line(roc_df, x="FPR", y="TPR")
-fig4.update_traces(line=dict(color="#1e3a8a", width=4))
+fig4.update_traces(line=dict(color=BLUE, width=4))
 
 fig4.add_shape(
     type="line",
-    line=dict(color="gray", dash="dash"),
+    line=dict(color=GRAY, dash="dash"),
     x0=0, x1=1, y0=0, y1=1
 )
 
