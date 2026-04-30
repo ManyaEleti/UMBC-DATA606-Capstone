@@ -67,8 +67,8 @@ with left:
 
     limit_bal = st.number_input("Credit Limit ($)", min_value=0, value=0, step=1000)
 
-    # ✅ FIXED AGE INPUT (NO SLIDER)
-    age = st.number_input("Age", min_value=18, max_value=100, value=25, step=1)
+    # AGE FIXED
+    age = st.number_input("Age", min_value=18, max_value=100, value=25)
 
     sex = st.selectbox("Sex", ["Select", "Male", "Female"])
     education = st.selectbox("Education", ["Select", "Graduate School", "University", "High School", "Other"])
@@ -84,17 +84,18 @@ with right:
     pay_5 = st.selectbox("5 Months Ago", ["Select", -2, -1, 0, 1, 2, 3, 4])
     pay_6 = st.selectbox("6 Months Ago", ["Select", -2, -1, 0, 1, 2, 3, 4])
 
-    avg_bill = st.number_input("Average Bill", min_value=0.0, value=0.0, step=100.0)
-    avg_payment = st.number_input("Average Payment", min_value=0.0, value=0.0, step=100.0)
-    avg_delay = st.number_input("Average Delay", min_value=0.0, value=0.0, step=0.1)
-    delay_count = st.number_input("Delay Count", min_value=0, value=0, step=1)
+    avg_bill = st.number_input("Average Bill", min_value=0.0, value=0.0)
+    avg_payment = st.number_input("Average Payment", min_value=0.0, value=0.0)
+    avg_delay = st.number_input("Average Delay", min_value=0.0, value=0.0)
+    delay_count = st.number_input("Delay Count", min_value=0, value=0)
 
 st.markdown("---")
 
 # --------------------------
 # ENCODING
 # --------------------------
-def safe(x): return 0 if x == "Select" else x
+def safe(x):
+    return 0 if x == "Select" else x
 
 sex_2 = 1 if sex == "Female" else 0
 education_2 = 1 if education == "University" else 0
@@ -112,7 +113,7 @@ features = np.array([[
 ]])
 
 # --------------------------
-# LIVE PREDICTION (AUTO)
+# PREDICTION
 # --------------------------
 if st.button("🚀 Analyze Customer Risk"):
 
@@ -126,40 +127,19 @@ if st.button("🚀 Analyze Customer Risk"):
     # RISK SEGMENT
     # --------------------------
     if prob > 0.75:
-        segment = "🔴 Critical Risk"
+        st.error("🔴 Critical Risk")
         decision = "Reject / Reduce Credit"
-        st.error(segment)
     elif prob > 0.5:
-        segment = "🟠 High Risk"
+        st.warning("🟠 High Risk")
         decision = "Monitor Closely"
-        st.warning(segment)
     elif prob > 0.3:
-        segment = "🟡 Medium Risk"
+        st.info("🟡 Medium Risk")
         decision = "Watch Behavior"
-        st.info(segment)
     else:
-        segment = "🟢 Low Risk"
+        st.success("🟢 Low Risk")
         decision = "Approve"
-        st.success(segment)
 
     st.metric("Default Probability", f"{prob:.2%}")
-
-    # --------------------------
-    # FEATURE IMPACT
-    # --------------------------
-    st.subheader("🔍 Risk Drivers")
-
-    impact = {
-        "Delay Count": delay_count * 0.15,
-        "Avg Delay": avg_delay * 0.12,
-        "Payment Gap": (avg_bill - avg_payment) * 0.00002,
-        "Recent Behavior": safe(pay_0) * 0.1
-    }
-
-    df = pd.DataFrame(impact.items(), columns=["Feature", "Impact"])
-    df = df.sort_values(by="Impact", ascending=False)
-
-    st.bar_chart(df.set_index("Feature"))
 
     # --------------------------
     # EXPLANATION
@@ -168,23 +148,36 @@ if st.button("🚀 Analyze Customer Risk"):
 
     if delay_count > 2:
         st.write("• High delay count increases default probability")
+
+    if avg_delay > 1:
+        st.write("• Frequent delays signal financial instability")
+
     if avg_payment < avg_bill * 0.5:
-        st.write("• Low payment ratio signals financial stress")
+        st.write("• Low payments relative to bill indicate financial stress")
+
     if safe(pay_0) > 1:
-        st.write("• Recent missed payments heavily impact risk")
+        st.write("• Recent missed payments strongly affect risk")
+
+    if delay_count == 0 and avg_payment >= avg_bill:
+        st.write("• Stable financial behavior observed")
 
     # --------------------------
-    # DECISION
+    # RECOMMENDATION
     # --------------------------
     st.subheader("💼 Recommended Action")
     st.info(f"👉 {decision}")
 
     # --------------------------
-    # WHAT-IF SIMULATION
+    # SCENARIO SIMULATION (FIXED)
     # --------------------------
     st.subheader("🔄 Scenario Simulation")
 
-    new_delay = st.number_input("Adjust delay count:", min_value=0, max_value=10, value=delay_count)
+    new_delay = st.number_input(
+        "Adjust delay count:",
+        min_value=0,
+        max_value=10,
+        value=delay_count
+    )
 
     temp = features.copy()
     temp[0][11] = new_delay
@@ -193,7 +186,20 @@ if st.button("🚀 Analyze Customer Risk"):
 
     st.write(f"New Risk: **{new_prob:.2%}**")
 
-    if new_prob < prob:
-        st.success("Risk decreases with improved behavior")
+    # Correct interpretation
+    if new_prob < 0.3:
+        st.success("✅ Low risk — customer becomes safe")
+
+    elif new_prob < 0.5:
+        st.info("🟡 Medium risk — improvement seen but still needs monitoring")
+
     else:
-        st.error("Risk remains high")
+        st.warning("🟠 High risk — still risky despite changes")
+
+    # Compare change
+    if new_prob < prob:
+        st.write("⬇️ Risk decreased due to improved behavior")
+    elif new_prob > prob:
+        st.write("⬆️ Risk increased")
+    else:
+        st.write("➡️ No significant change")
