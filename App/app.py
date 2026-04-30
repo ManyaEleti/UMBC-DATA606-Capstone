@@ -39,20 +39,20 @@ col2.metric("Recall (Defaulters)", "56%")
 col3.metric("F1 Score", "0.51")
 col4.metric("Customers", "30K+")
 
-st.info("👉 Model optimized for **high recall** to capture risky customers early.")
+st.info("👉 Model optimized for **high recall** to detect risky customers early.")
 
 st.markdown("---")
 
 # --------------------------
-# MODEL SELECTION JUSTIFICATION
+# MODEL JUSTIFICATION
 # --------------------------
 st.subheader("🏆 Model Selection")
 
 st.success("""
 Balanced Logistic Regression selected:
-- Best recall → catches more defaulters
-- Slight tradeoff in accuracy acceptable
-- Ideal for financial risk systems
+- Highest recall (better risk detection)
+- Acceptable accuracy tradeoff
+- Suitable for financial risk systems
 """)
 
 st.markdown("---")
@@ -65,8 +65,10 @@ left, right = st.columns(2)
 with left:
     st.subheader("👤 Customer Profile")
 
-    limit_bal = st.number_input("Credit Limit ($)", value=0)
-    age = st.slider("Age", 18, 75, 25)
+    limit_bal = st.number_input("Credit Limit ($)", min_value=0, value=0, step=1000)
+
+    # ✅ FIXED AGE INPUT (NO SLIDER)
+    age = st.number_input("Age", min_value=18, max_value=100, value=25, step=1)
 
     sex = st.selectbox("Sex", ["Select", "Male", "Female"])
     education = st.selectbox("Education", ["Select", "Graduate School", "University", "High School", "Other"])
@@ -82,10 +84,10 @@ with right:
     pay_5 = st.selectbox("5 Months Ago", ["Select", -2, -1, 0, 1, 2, 3, 4])
     pay_6 = st.selectbox("6 Months Ago", ["Select", -2, -1, 0, 1, 2, 3, 4])
 
-    avg_bill = st.number_input("Average Bill", value=0.0)
-    avg_payment = st.number_input("Average Payment", value=0.0)
-    avg_delay = st.number_input("Average Delay", value=0.0)
-    delay_count = st.number_input("Delay Count", value=0)
+    avg_bill = st.number_input("Average Bill", min_value=0.0, value=0.0, step=100.0)
+    avg_payment = st.number_input("Average Payment", min_value=0.0, value=0.0, step=100.0)
+    avg_delay = st.number_input("Average Delay", min_value=0.0, value=0.0, step=0.1)
+    delay_count = st.number_input("Delay Count", min_value=0, value=0, step=1)
 
 st.markdown("---")
 
@@ -110,7 +112,7 @@ features = np.array([[
 ]])
 
 # --------------------------
-# ANALYZE BUTTON
+# LIVE PREDICTION (AUTO)
 # --------------------------
 if st.button("🚀 Analyze Customer Risk"):
 
@@ -143,15 +145,15 @@ if st.button("🚀 Analyze Customer Risk"):
     st.metric("Default Probability", f"{prob:.2%}")
 
     # --------------------------
-    # FEATURE IMPACT (REALISTIC APPROX)
+    # FEATURE IMPACT
     # --------------------------
     st.subheader("🔍 Risk Drivers")
 
     impact = {
         "Delay Count": delay_count * 0.15,
         "Avg Delay": avg_delay * 0.12,
-        "Payment Ratio": (avg_bill - avg_payment) * 0.00002,
-        "Recent Payment Status": safe(pay_0) * 0.1
+        "Payment Gap": (avg_bill - avg_payment) * 0.00002,
+        "Recent Behavior": safe(pay_0) * 0.1
     }
 
     df = pd.DataFrame(impact.items(), columns=["Feature", "Impact"])
@@ -165,24 +167,24 @@ if st.button("🚀 Analyze Customer Risk"):
     st.subheader("🧠 Explanation")
 
     if delay_count > 2:
-        st.write("• High delay count significantly increases risk")
+        st.write("• High delay count increases default probability")
     if avg_payment < avg_bill * 0.5:
-        st.write("• Low payments relative to bills indicate financial stress")
+        st.write("• Low payment ratio signals financial stress")
     if safe(pay_0) > 1:
-        st.write("• Recent missed payments strongly affect prediction")
+        st.write("• Recent missed payments heavily impact risk")
 
     # --------------------------
-    # DECISION ENGINE
+    # DECISION
     # --------------------------
     st.subheader("💼 Recommended Action")
     st.info(f"👉 {decision}")
 
     # --------------------------
-    # WHAT-IF SIMULATOR
+    # WHAT-IF SIMULATION
     # --------------------------
     st.subheader("🔄 Scenario Simulation")
 
-    new_delay = st.slider("Reduce delay count to:", 0, 10, delay_count)
+    new_delay = st.number_input("Adjust delay count:", min_value=0, max_value=10, value=delay_count)
 
     temp = features.copy()
     temp[0][11] = new_delay
@@ -192,6 +194,6 @@ if st.button("🚀 Analyze Customer Risk"):
     st.write(f"New Risk: **{new_prob:.2%}**")
 
     if new_prob < prob:
-        st.success("Improvement reduces risk")
+        st.success("Risk decreases with improved behavior")
     else:
         st.error("Risk remains high")
