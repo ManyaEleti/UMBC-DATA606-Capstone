@@ -13,6 +13,69 @@ st.set_page_config(
 )
 
 # -------------------------------
+# CUSTOM CSS (🔥 PREMIUM UI)
+# -------------------------------
+st.markdown("""
+<style>
+/* Background */
+.main {
+    background-color: #f8fafc;
+}
+
+/* Titles */
+h1 {
+    color: #1e3a8a;
+    font-weight: 700;
+}
+h2, h3 {
+    color: #1f2937;
+}
+
+/* Cards */
+.card {
+    padding: 20px;
+    border-radius: 15px;
+    background-color: white;
+    box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+}
+
+/* Button */
+.stButton>button {
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    color: white;
+    border-radius: 10px;
+    height: 3em;
+    width: 100%;
+    font-size: 16px;
+    border: none;
+}
+.stButton>button:hover {
+    background: linear-gradient(90deg, #1d4ed8, #2563eb);
+}
+
+/* Inputs */
+.stTextInput, .stNumberInput, .stSelectbox {
+    border-radius: 10px !important;
+}
+
+/* Metric */
+[data-testid="stMetric"] {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Divider spacing */
+hr {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# -------------------------------
 # LOAD MODEL
 # -------------------------------
 BASE_DIR = os.path.dirname(__file__)
@@ -25,10 +88,11 @@ scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 # -------------------------------
 st.title("💳 Credit Default Risk Predictor")
 st.markdown("""
-Predict whether a customer is likely to default on their credit card payment.
-
-**Key Idea:** We prioritize **recall for defaulters (high-risk customers)** over accuracy.
-""")
+<div class="card">
+Predict whether a customer is likely to default on their credit card payment.<br><br>
+<b>Key Idea:</b> Focus on <b>recall</b> to identify high-risk customers.
+</div>
+""", unsafe_allow_html=True)
 
 st.divider()
 
@@ -41,35 +105,33 @@ col1, col2 = st.columns(2)
 # LEFT COLUMN
 # -------------------------------
 with col1:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("👤 Customer Profile")
 
-    # Credit Limit (clean input)
     limit_bal = st.text_input("Credit Limit ($)", value="0")
     try:
         limit_bal = float(limit_bal)
     except:
         limit_bal = 0
 
-    # Age (better UX)
     age = st.number_input("Age", min_value=18, max_value=100, value=25)
 
-    # Sex
     sex = st.selectbox("Sex", ["Select...", "Male", "Female"])
 
-    # Education
     education = st.selectbox(
         "Education Level",
         ["Select...", "Graduate School", "University", "High School", "Others"]
     )
 
-    # Marital Status
     marriage = st.selectbox(
         "Marital Status",
         ["Select...", "Married", "Single", "Others"]
     )
 
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # -------------------------------
-# PAYMENT STATUS OPTIONS
+# PAYMENT OPTIONS
 # -------------------------------
 payment_options = {
     "No delay / Paid early": -2,
@@ -86,14 +148,15 @@ payment_options = {
 # RIGHT COLUMN
 # -------------------------------
 with col2:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("📊 Financial Behavior")
 
-    pay_0_label = st.selectbox("Recent Payment Status (Last Month)", ["Select..."] + list(payment_options.keys()))
-    pay_2_label = st.selectbox("Payment Status (2 Months Ago)", ["Select..."] + list(payment_options.keys()))
-    pay_3_label = st.selectbox("Payment Status (3 Months Ago)", ["Select..."] + list(payment_options.keys()))
-    pay_4_label = st.selectbox("Payment Status (4 Months Ago)", ["Select..."] + list(payment_options.keys()))
-    pay_5_label = st.selectbox("Payment Status (5 Months Ago)", ["Select..."] + list(payment_options.keys()))
-    pay_6_label = st.selectbox("Payment Status (6 Months Ago)", ["Select..."] + list(payment_options.keys()))
+    pay_0_label = st.selectbox("Recent Payment (Last Month)", ["Select..."] + list(payment_options.keys()))
+    pay_2_label = st.selectbox("2 Months Ago", ["Select..."] + list(payment_options.keys()))
+    pay_3_label = st.selectbox("3 Months Ago", ["Select..."] + list(payment_options.keys()))
+    pay_4_label = st.selectbox("4 Months Ago", ["Select..."] + list(payment_options.keys()))
+    pay_5_label = st.selectbox("5 Months Ago", ["Select..."] + list(payment_options.keys()))
+    pay_6_label = st.selectbox("6 Months Ago", ["Select..."] + list(payment_options.keys()))
 
     pay_0 = payment_options.get(pay_0_label)
     pay_2 = payment_options.get(pay_2_label)
@@ -102,10 +165,12 @@ with col2:
     pay_5 = payment_options.get(pay_5_label)
     pay_6 = payment_options.get(pay_6_label)
 
-    avg_bill = st.number_input("Average Bill Amount ($)", value=0.0)
-    avg_payment = st.number_input("Average Payment Amount ($)", value=0.0)
-    avg_delay = st.number_input("Average Payment Delay", value=0.0)
-    delay_count = st.number_input("Number of Delays", value=0)
+    avg_bill = st.number_input("Average Bill ($)", value=0.0)
+    avg_payment = st.number_input("Average Payment ($)", value=0.0)
+    avg_delay = st.number_input("Average Delay", value=0.0)
+    delay_count = st.number_input("Delay Count", value=0)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
@@ -129,13 +194,10 @@ mar_map = {
 }
 marriage_val = mar_map.get(marriage)
 
-# One-hot encoding
 sex_2 = 1 if sex_val == 2 else 0
-
 education_2 = 1 if education_val == 2 else 0
 education_3 = 1 if education_val == 3 else 0
 education_4 = 1 if education_val == 4 else 0
-
 marriage_2 = 1 if marriage_val == 2 else 0
 marriage_3 = 1 if marriage_val == 3 else 0
 
@@ -164,37 +226,26 @@ if st.button("🚀 Predict Risk"):
         probability = model.predict_proba(features_scaled)[0][1]
 
         st.divider()
-        st.subheader("📊 Prediction Result")
+        st.subheader("📊 Risk Analysis")
 
         if prediction == 1:
-            st.error("⚠️ High Risk of Default")
+            st.error("🔴 High Risk Customer")
         else:
-            st.success("✅ Low Risk of Default")
+            st.success("🟢 Low Risk Customer")
 
-        st.write("### Risk Probability")
-        st.progress(float(probability))
+        colA, colB = st.columns(2)
 
-        st.metric("Default Probability", f"{probability:.2%}")
+        with colA:
+            st.metric("Default Probability", f"{probability:.2%}")
 
-        if probability > 0.7:
-            st.warning("Very high risk — strong chance of default.")
-        elif probability > 0.4:
-            st.info("Moderate risk — monitor closely.")
-        else:
-            st.success("Low risk — customer is likely safe.")
+        with colB:
+            st.progress(float(probability))
 
 # -------------------------------
 # FOOTER
 # -------------------------------
 st.divider()
-
-st.subheader("📈 Model Insight")
 st.info("""
-This model demonstrates how **feature engineering improves performance**.
-
-• Accuracy ~81%  
-• Recall improved significantly  
-• Focus on catching high-risk customers  
-
-👉 In finance, missing a defaulter is more costly than a false alarm.
+📌 Feature engineering significantly improved recall.
+Accuracy alone is misleading in credit risk prediction.
 """)
