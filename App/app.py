@@ -7,71 +7,78 @@ import streamlit as st
 # CONFIG
 # -------------------------------
 st.set_page_config(
-    page_title="Credit Risk Predictor",
+    page_title="Credit Risk AI",
     page_icon="💳",
     layout="wide"
 )
 
 # -------------------------------
-# CUSTOM CSS (🔥 PREMIUM UI)
+# ADVANCED CSS (🔥 MODERN FINTECH)
 # -------------------------------
 st.markdown("""
 <style>
-/* Background */
-.main {
-    background-color: #f8fafc;
+
+/* Background Gradient */
+[data-testid="stAppViewContainer"] {
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
 }
 
-/* Titles */
-h1 {
+/* Header */
+.title {
+    font-size: 40px;
+    font-weight: 800;
     color: #1e3a8a;
-    font-weight: 700;
 }
-h2, h3 {
+
+/* Glass Card */
+.glass-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Gradient Button */
+.stButton>button {
+    background: linear-gradient(90deg, #4f46e5, #3b82f6);
+    color: white;
+    border-radius: 12px;
+    height: 3.2em;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s;
+}
+.stButton>button:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 6px 20px rgba(59,130,246,0.4);
+}
+
+/* Input Styling */
+.stTextInput, .stNumberInput, .stSelectbox {
+    border-radius: 12px !important;
+}
+
+/* Metric Cards */
+.metric-box {
+    padding: 20px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #ffffff, #f1f5f9);
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
     color: #1f2937;
 }
 
-/* Cards */
-.card {
-    padding: 20px;
-    border-radius: 15px;
-    background-color: white;
-    box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
-    margin-bottom: 15px;
-}
-
-/* Button */
-.stButton>button {
-    background: linear-gradient(90deg, #2563eb, #3b82f6);
-    color: white;
-    border-radius: 10px;
-    height: 3em;
-    width: 100%;
-    font-size: 16px;
-    border: none;
-}
-.stButton>button:hover {
-    background: linear-gradient(90deg, #1d4ed8, #2563eb);
-}
-
-/* Inputs */
-.stTextInput, .stNumberInput, .stSelectbox {
-    border-radius: 10px !important;
-}
-
-/* Metric */
-[data-testid="stMetric"] {
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
-}
-
-/* Divider spacing */
-hr {
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -79,22 +86,20 @@ hr {
 # LOAD MODEL
 # -------------------------------
 BASE_DIR = os.path.dirname(__file__)
-
 model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
 # HEADER
 # -------------------------------
-st.title("💳 Credit Default Risk Predictor")
+st.markdown('<div class="title">💳 Credit Risk Intelligence Dashboard</div>', unsafe_allow_html=True)
+
 st.markdown("""
-<div class="card">
-Predict whether a customer is likely to default on their credit card payment.<br><br>
-<b>Key Idea:</b> Focus on <b>recall</b> to identify high-risk customers.
+<div class="glass-card">
+AI-powered system to predict credit default risk in real-time.<br><br>
+<b>Focus:</b> Detect high-risk customers using behavioral patterns and feature engineering.
 </div>
 """, unsafe_allow_html=True)
-
-st.divider()
 
 # -------------------------------
 # LAYOUT
@@ -102,11 +107,11 @@ st.divider()
 col1, col2 = st.columns(2)
 
 # -------------------------------
-# LEFT COLUMN
+# LEFT PANEL
 # -------------------------------
 with col1:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("👤 Customer Profile")
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">👤 Customer Profile</div>', unsafe_allow_html=True)
 
     limit_bal = st.text_input("Credit Limit ($)", value="0")
     try:
@@ -114,7 +119,7 @@ with col1:
     except:
         limit_bal = 0
 
-    age = st.number_input("Age", min_value=18, max_value=100, value=25)
+    age = st.number_input("Age", 18, 100, 25)
 
     sex = st.selectbox("Sex", ["Select...", "Male", "Female"])
 
@@ -145,25 +150,18 @@ payment_options = {
 }
 
 # -------------------------------
-# RIGHT COLUMN
+# RIGHT PANEL
 # -------------------------------
 with col2:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("📊 Financial Behavior")
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📊 Financial Behavior</div>', unsafe_allow_html=True)
 
-    pay_0_label = st.selectbox("Recent Payment (Last Month)", ["Select..."] + list(payment_options.keys()))
-    pay_2_label = st.selectbox("2 Months Ago", ["Select..."] + list(payment_options.keys()))
-    pay_3_label = st.selectbox("3 Months Ago", ["Select..."] + list(payment_options.keys()))
-    pay_4_label = st.selectbox("4 Months Ago", ["Select..."] + list(payment_options.keys()))
-    pay_5_label = st.selectbox("5 Months Ago", ["Select..."] + list(payment_options.keys()))
-    pay_6_label = st.selectbox("6 Months Ago", ["Select..."] + list(payment_options.keys()))
-
-    pay_0 = payment_options.get(pay_0_label)
-    pay_2 = payment_options.get(pay_2_label)
-    pay_3 = payment_options.get(pay_3_label)
-    pay_4 = payment_options.get(pay_4_label)
-    pay_5 = payment_options.get(pay_5_label)
-    pay_6 = payment_options.get(pay_6_label)
+    pay_0 = payment_options.get(st.selectbox("Last Month", ["Select..."] + list(payment_options.keys())))
+    pay_2 = payment_options.get(st.selectbox("2 Months Ago", ["Select..."] + list(payment_options.keys())))
+    pay_3 = payment_options.get(st.selectbox("3 Months Ago", ["Select..."] + list(payment_options.keys())))
+    pay_4 = payment_options.get(st.selectbox("4 Months Ago", ["Select..."] + list(payment_options.keys())))
+    pay_5 = payment_options.get(st.selectbox("5 Months Ago", ["Select..."] + list(payment_options.keys())))
+    pay_6 = payment_options.get(st.selectbox("6 Months Ago", ["Select..."] + list(payment_options.keys())))
 
     avg_bill = st.number_input("Average Bill ($)", value=0.0)
     avg_payment = st.number_input("Average Payment ($)", value=0.0)
@@ -172,26 +170,15 @@ with col2:
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.divider()
-
 # -------------------------------
 # ENCODING
 # -------------------------------
 sex_val = 1 if sex == "Male" else 2 if sex == "Female" else None
 
-edu_map = {
-    "Graduate School": 1,
-    "University": 2,
-    "High School": 3,
-    "Others": 4
-}
+edu_map = {"Graduate School": 1, "University": 2, "High School": 3, "Others": 4}
 education_val = edu_map.get(education)
 
-mar_map = {
-    "Married": 1,
-    "Single": 2,
-    "Others": 3
-}
+mar_map = {"Married": 1, "Single": 2, "Others": 3}
 marriage_val = mar_map.get(marriage)
 
 sex_2 = 1 if sex_val == 2 else 0
@@ -204,48 +191,42 @@ marriage_3 = 1 if marriage_val == 3 else 0
 # -------------------------------
 # PREDICTION
 # -------------------------------
-if st.button("🚀 Predict Risk"):
+if st.button("🚀 Analyze Risk"):
 
-    if None in [
-        sex_val, education_val, marriage_val,
-        pay_0, pay_2, pay_3, pay_4, pay_5, pay_6
-    ]:
-        st.error("⚠️ Please complete all required fields.")
+    if None in [sex_val, education_val, marriage_val, pay_0, pay_2, pay_3, pay_4, pay_5, pay_6]:
+        st.error("⚠️ Please complete all fields")
     else:
-        features = np.array([[
-            limit_bal, age,
-            pay_0, pay_2, pay_3, pay_4, pay_5, pay_6,
-            avg_bill, avg_payment, avg_delay, delay_count,
-            sex_2, education_2, education_3, education_4,
-            marriage_2, marriage_3
-        ]])
+        features = np.array([[limit_bal, age, pay_0, pay_2, pay_3, pay_4, pay_5, pay_6,
+                              avg_bill, avg_payment, avg_delay, delay_count,
+                              sex_2, education_2, education_3, education_4,
+                              marriage_2, marriage_3]])
 
         features_scaled = scaler.transform(features)
 
-        prediction = model.predict(features_scaled)[0]
         probability = model.predict_proba(features_scaled)[0][1]
 
         st.divider()
-        st.subheader("📊 Risk Analysis")
 
-        if prediction == 1:
-            st.error("🔴 High Risk Customer")
-        else:
-            st.success("🟢 Low Risk Customer")
-
+        # -------------------------------
+        # RESULT DASHBOARD
+        # -------------------------------
         colA, colB = st.columns(2)
 
         with colA:
-            st.metric("Default Probability", f"{probability:.2%}")
+            st.markdown(f"""
+            <div class="metric-box">
+                <h2>{probability:.2%}</h2>
+                <p>Default Probability</p>
+            </div>
+            """, unsafe_allow_html=True)
 
         with colB:
             st.progress(float(probability))
 
-# -------------------------------
-# FOOTER
-# -------------------------------
-st.divider()
-st.info("""
-📌 Feature engineering significantly improved recall.
-Accuracy alone is misleading in credit risk prediction.
-""")
+        # Risk Color Logic
+        if probability > 0.7:
+            st.error("🔴 High Risk Customer")
+        elif probability > 0.4:
+            st.warning("🟠 Moderate Risk")
+        else:
+            st.success("🟢 Low Risk Customer")
