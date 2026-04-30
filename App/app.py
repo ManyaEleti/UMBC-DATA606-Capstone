@@ -30,13 +30,13 @@ st.markdown("""
 /* Header */
 .main-title {
     background: linear-gradient(135deg, #2563eb, #1e40af);
-    padding: 30px;
-    border-radius: 14px;
+    padding: 32px;
+    border-radius: 16px;
     color: white;
-    font-size: 34px;
+    font-size: 36px;
     font-weight: 700;
     text-align: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 /* Subtitle */
@@ -44,21 +44,21 @@ st.markdown("""
     text-align: center;
     color: #475569;
     margin-top: 8px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 /* Cards */
 .section-card {
     background: white;
-    padding: 22px;
+    padding: 20px;
     border-radius: 14px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-    margin-bottom: 15px;
-    transition: 0.2s;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
 }
 
-.section-card:hover {
-    transform: translateY(-3px);
+/* Prevent empty cards */
+.section-card:empty {
+    display: none;
 }
 
 /* Text */
@@ -67,11 +67,6 @@ h1, h2, h3 {
 }
 label, p {
     color: #334155 !important;
-}
-
-/* Inputs */
-input, select {
-    border-radius: 8px !important;
 }
 
 /* Button */
@@ -130,7 +125,7 @@ st.success(f"Best model for risk detection: {best_model} (highest recall)")
 st.divider()
 
 # =========================
-# INPUT SECTION
+# INPUT SECTION (NO EMPTY CARDS)
 # =========================
 col1, col2 = st.columns(2)
 
