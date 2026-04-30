@@ -15,26 +15,26 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
-# COLOR PALETTE (FINTECH STYLE)
+# COLOR PALETTE (SOFTER + PREMIUM)
 # -------------------------------
-PRIMARY = "#0f172a"   # dark navy
-BLUE = "#1e3a8a"      # deep blue
-ACCENT = "#2563eb"    # bright blue
-RED = "#dc2626"       # risk
-GREEN = "#059669"     # safe
-GRAY = "#64748b"      # neutral
+INDIGO = "#4338ca"
+BLUE = "#3b82f6"
+LIGHT_BLUE = "#60a5fa"
+RED = "#f87171"
+GREEN = "#34d399"
+GRAY = "#94a3b8"
 
 # -------------------------------
-# CLEAN UI CSS
+# CLEAN UI
 # -------------------------------
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"] {
-    background: #f8fafc;
+    background: #f9fafb;
 }
 
 .header {
-    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    background: linear-gradient(135deg, #312e81, #4338ca);
     padding: 25px;
     border-radius: 12px;
     color: white;
@@ -45,7 +45,7 @@ st.markdown("""
 }
 
 .stButton>button {
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    background: linear-gradient(135deg, #4338ca, #3b82f6);
     color: white;
     border-radius: 10px;
     font-size: 16px;
@@ -61,7 +61,31 @@ st.markdown("AI-powered system to detect **high-risk customers** using machine l
 st.markdown("---")
 
 # =========================================================
-# 📊 DASHBOARD (TOP)
+# 📊 MODEL DATA
+# =========================================================
+df = pd.DataFrame({
+    "Model": ["Logistic", "Balanced Logistic", "Random Forest"],
+    "Accuracy": [0.81, 0.76, 0.82],
+    "Recall": [0.29, 0.56, 0.48],
+    "F1": [0.43, 0.51, 0.53]
+})
+
+# -------------------------------
+# 🏆 BEST MODEL (AUTO DETECT)
+# -------------------------------
+best_model = df.loc[df["Recall"].idxmax()]
+
+st.markdown("## 🏆 Best Model Selection")
+
+st.success(
+    f"**{best_model['Model']}** performs best for this problem "
+    f"(Highest Recall: {best_model['Recall']:.2f})"
+)
+
+st.markdown("---")
+
+# =========================================================
+# 📊 DASHBOARD
 # =========================================================
 st.markdown("## 📊 Model Performance Dashboard")
 
@@ -87,7 +111,7 @@ fig1 = px.bar(
     x="Feature",
     y="Importance",
     color="Importance",
-    color_continuous_scale=[PRIMARY, BLUE, ACCENT]
+    color_continuous_scale=[INDIGO, BLUE, LIGHT_BLUE]
 )
 
 fig1.update_layout(plot_bgcolor="white", paper_bgcolor="white")
@@ -97,13 +121,6 @@ st.plotly_chart(fig1, use_container_width=True)
 # MODEL COMPARISON
 # -------------------------------
 st.markdown("### 📊 Model Comparison")
-
-df = pd.DataFrame({
-    "Model": ["Logistic", "Balanced Logistic", "Random Forest"],
-    "Accuracy": [0.81, 0.76, 0.82],
-    "Recall": [0.29, 0.56, 0.48],
-    "F1": [0.43, 0.51, 0.53]
-})
 
 df_melt = df.melt(id_vars="Model")
 
@@ -134,7 +151,7 @@ cm = np.array([[3828, 845],
 fig3 = px.imshow(
     cm,
     text_auto=True,
-    color_continuous_scale=["#e2e8f0", ACCENT, PRIMARY]
+    color_continuous_scale=["#f1f5f9", BLUE, INDIGO]
 )
 
 fig3.update_layout(plot_bgcolor="white", paper_bgcolor="white")
@@ -151,7 +168,8 @@ roc_df = pd.DataFrame({
 })
 
 fig4 = px.line(roc_df, x="FPR", y="TPR")
-fig4.update_traces(line=dict(color=BLUE, width=4))
+
+fig4.update_traces(line=dict(color=INDIGO, width=4))
 
 fig4.add_shape(
     type="line",
@@ -201,7 +219,7 @@ with col2:
     delay_count = st.number_input("Delay Count", value=0)
 
 # -------------------------------
-# FEATURE VECTOR
+# FEATURES
 # -------------------------------
 features = np.array([[limit_bal, age,
     pay_0, pay_2, pay_3, pay_4, pay_5, pay_6,
