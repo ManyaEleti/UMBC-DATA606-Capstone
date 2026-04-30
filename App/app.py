@@ -17,71 +17,75 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # =========================
-# STRIPE / BLOOMBERG UI CSS
+# LIGHT FINTECH UI CSS
 # =========================
 st.markdown("""
 <style>
 
 /* Background */
 [data-testid="stAppViewContainer"] {
-    background-color: #0b1220;
+    background: linear-gradient(135deg, #f8fafc, #eef2f7);
 }
 
 /* Header */
 .main-title {
-    background: linear-gradient(135deg, #111827, #1f2937);
+    background: linear-gradient(135deg, #2563eb, #1e40af);
     padding: 30px;
     border-radius: 14px;
-    color: #f9fafb;
+    color: white;
     font-size: 34px;
     font-weight: 700;
     text-align: center;
-    border: 1px solid #1f2937;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
 /* Subtitle */
 .subtitle {
     text-align: center;
-    color: #9ca3af;
+    color: #475569;
     margin-top: 8px;
     margin-bottom: 25px;
 }
 
 /* Cards */
 .section-card {
-    background: #111827;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #1f2937;
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
     margin-bottom: 15px;
+    transition: 0.2s;
+}
+
+.section-card:hover {
+    transform: translateY(-3px);
 }
 
 /* Text */
 h1, h2, h3 {
-    color: #f9fafb !important;
+    color: #0f172a !important;
 }
 label, p {
-    color: #d1d5db !important;
+    color: #334155 !important;
 }
 
 /* Inputs */
 input, select {
-    background-color: #0f172a !important;
-    color: #e5e7eb !important;
-    border: 1px solid #1f2937 !important;
+    border-radius: 8px !important;
 }
 
 /* Button */
 .stButton > button {
-    background: #2563eb;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
+    padding: 10px 20px;
 }
 
 /* Metric */
 [data-testid="stMetricValue"] {
-    color: #22c55e;
+    color: #059669;
 }
 
 </style>
@@ -94,7 +98,7 @@ st.markdown('<div class="main-title">💳 Credit Risk Intelligence Dashboard</di
 st.markdown('<div class="subtitle">Real-time credit risk scoring powered by machine learning</div>', unsafe_allow_html=True)
 
 # =========================
-# MODEL PERFORMANCE (TOP)
+# MODEL PERFORMANCE
 # =========================
 st.subheader("🏆 Model Performance")
 
@@ -106,16 +110,16 @@ f1 = [0.43, 0.51, 0.53]
 fig = go.Figure()
 
 fig.add_trace(go.Bar(name='Accuracy', x=models, y=accuracy, marker_color='#3b82f6', width=0.25))
-fig.add_trace(go.Bar(name='Recall', x=models, y=recall, marker_color='#22c55e', width=0.25))
-fig.add_trace(go.Bar(name='F1 Score', x=models, y=f1, marker_color='#a78bfa', width=0.25))
+fig.add_trace(go.Bar(name='Recall', x=models, y=recall, marker_color='#10b981', width=0.25))
+fig.add_trace(go.Bar(name='F1 Score', x=models, y=f1, marker_color='#8b5cf6', width=0.25))
 
 fig.update_layout(
     barmode='group',
     height=400,
-    paper_bgcolor='#0b1220',
-    plot_bgcolor='#0b1220',
-    font=dict(color='#e5e7eb'),
-    yaxis=dict(gridcolor='#1f2937')
+    paper_bgcolor='white',
+    plot_bgcolor='white',
+    font=dict(color='#1e293b'),
+    yaxis=dict(gridcolor='#e2e8f0')
 )
 
 st.plotly_chart(fig, use_container_width=True)
@@ -132,7 +136,7 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("Customer Profile")
+    st.subheader("👤 Customer Profile")
 
     limit_bal = st.number_input("Credit Limit", value=0)
     age = st.number_input("Age", value=25)
@@ -145,7 +149,7 @@ with col1:
 
 with col2:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.subheader("Financial Behavior")
+    st.subheader("📊 Financial Behavior")
 
     pay_0 = st.selectbox("Recent Status", [-2, -1, 0, 1, 2, 3])
     pay_2 = st.selectbox("2 Months Ago", [-2, -1, 0, 1, 2])
@@ -184,13 +188,13 @@ features = np.array([[
 # =========================
 # PREDICTION
 # =========================
-if st.button("Predict Risk"):
+if st.button("🚀 Predict Risk"):
 
     features_scaled = scaler.transform(features)
     prediction = model.predict(features_scaled)[0]
     prob = model.predict_proba(features_scaled)[0][1]
 
-    st.subheader("Prediction")
+    st.subheader("📊 Prediction")
 
     if prediction == 1:
         st.error("High Risk Customer")
@@ -200,18 +204,18 @@ if st.button("Predict Risk"):
     st.metric("Default Probability", f"{prob:.2%}")
     st.progress(float(prob))
 
-    st.subheader("Insight")
+    st.subheader("🧠 Insight")
 
     if delay_count > 2:
-        st.warning("High delay frequency is the main risk driver")
+        st.warning("High delay frequency increases risk")
     else:
-        st.success("Customer behavior looks stable")
+        st.success("Stable repayment behavior")
 
-    st.subheader("Recommended Action")
+    st.subheader("💼 Recommended Action")
 
     if prob > 0.7:
         st.error("Reduce credit exposure")
     elif prob > 0.4:
-        st.warning("Monitor closely")
+        st.warning("Monitor customer closely")
     else:
         st.success("No action needed")
