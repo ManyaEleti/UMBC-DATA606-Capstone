@@ -209,27 +209,3 @@ if st.button("🚀 Predict Risk"):
         st.warning("Monitor customer closely")
     else:
         st.success("Customer is safe")
-
-    # WHAT-IF SIMULATOR
-    st.subheader("🔄 What-If Risk Simulator")
-
-    colA, colB = st.columns(2)
-
-    with colA:
-        new_delay = st.slider("Change Delay Frequency", 0, 10, delay_count)
-
-    with colB:
-        new_payment = st.number_input("Adjust Avg Payment", value=avg_payment)
-
-    new_features = features.copy()
-    new_features[0][-1] = new_delay
-    new_features[0][9] = new_payment
-
-    new_prob = model.predict_proba(scaler.transform(new_features))[0][1]
-
-    st.metric("Updated Risk", f"{new_prob:.2%}")
-
-    if new_prob < probability:
-        st.success("Risk improves → good behavior")
-    else:
-        st.error("Risk worsens → concern")
