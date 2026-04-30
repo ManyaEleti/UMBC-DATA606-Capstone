@@ -16,14 +16,26 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
-# GLOBAL STYLE
+# PREMIUM BACKGROUND + UI
 # -------------------------------
 st.markdown("""
 <style>
+
+/* ===== BACKGROUND ===== */
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    background:
+        radial-gradient(circle at 20% 20%, rgba(59,130,246,0.12), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(37,99,235,0.10), transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(15,23,42,0.08), transparent 50%),
+        linear-gradient(135deg, #f1f5f9, #e2e8f0);
 }
 
+/* REMOVE WHITE BLOCK */
+.block-container {
+    background: transparent !important;
+}
+
+/* HEADER */
 .header {
     background: linear-gradient(135deg, #0f172a, #1e3a8a);
     padding: 25px;
@@ -34,6 +46,15 @@ st.markdown("""
     font-weight: bold;
     margin-bottom: 20px;
 }
+
+/* BUTTON */
+.stButton>button {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -47,7 +68,7 @@ st.markdown("AI-powered system to detect **high-risk customers** using machine l
 st.markdown("---")
 
 # =========================================================
-# 📊 DASHBOARD (TOP)
+# 📊 TOP DASHBOARD
 # =========================================================
 st.markdown("## 📊 Model Performance Dashboard")
 
@@ -73,12 +94,7 @@ fig1 = px.bar(
     x="Feature",
     y="Importance",
     color="Importance",
-    color_continuous_scale=[
-        "#0f172a",
-        "#1e3a8a",
-        "#2563eb",
-        "#3b82f6"
-    ]
+    color_continuous_scale=["#0f172a", "#1e3a8a", "#2563eb", "#3b82f6"]
 )
 
 fig1.update_layout(plot_bgcolor="white", paper_bgcolor="white")
@@ -125,11 +141,7 @@ cm = np.array([[3828, 845],
 fig3 = px.imshow(
     cm,
     text_auto=True,
-    color_continuous_scale=[
-        "#0f172a",
-        "#1e3a8a",
-        "#3b82f6"
-    ]
+    color_continuous_scale=["#0f172a", "#1e3a8a", "#3b82f6"]
 )
 
 fig3.update_layout(plot_bgcolor="white", paper_bgcolor="white")
@@ -146,7 +158,6 @@ roc_df = pd.DataFrame({
 })
 
 fig4 = px.line(roc_df, x="FPR", y="TPR")
-
 fig4.update_traces(line=dict(color="#1e3a8a", width=4))
 
 fig4.add_shape(
@@ -167,7 +178,6 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("👤 Customer Profile")
-
     limit_bal = st.number_input("Credit Limit", value=0)
     age = st.slider("Age", 18, 75, 25)
 
