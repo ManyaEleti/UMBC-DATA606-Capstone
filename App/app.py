@@ -47,80 +47,62 @@ st.markdown("AI-powered system to detect **high-risk customers** using behaviora
 st.divider()
 
 # =====================================================
-# 🏆 MODEL PERFORMANCE (RADAR + TRADEOFF)
+# 🏆 MODEL PERFORMANCE (THIN BAR GRAPH)
 # =====================================================
 
 st.subheader("🏆 Model Performance Analysis")
 
 models = ["Logistic", "Balanced Logistic", "Random Forest"]
+
 accuracy = [0.81, 0.76, 0.82]
 recall = [0.29, 0.56, 0.48]
 f1 = [0.43, 0.51, 0.53]
 
-# RADAR CHART
 fig = go.Figure()
 
-fig.add_trace(go.Scatterpolar(
-    r=[accuracy[0], recall[0], f1[0]],
-    theta=["Accuracy", "Recall", "F1"],
-    fill='toself',
-    name='Logistic'
+fig.add_trace(go.Bar(
+    name='Accuracy',
+    x=models,
+    y=accuracy,
+    marker_color='#2563eb',
+    width=0.25
 ))
 
-fig.add_trace(go.Scatterpolar(
-    r=[accuracy[1], recall[1], f1[1]],
-    theta=["Accuracy", "Recall", "F1"],
-    fill='toself',
-    name='Balanced Logistic'
+fig.add_trace(go.Bar(
+    name='Recall',
+    x=models,
+    y=recall,
+    marker_color='#059669',
+    width=0.25
 ))
 
-fig.add_trace(go.Scatterpolar(
-    r=[accuracy[2], recall[2], f1[2]],
-    theta=["Accuracy", "Recall", "F1"],
-    fill='toself',
-    name='Random Forest'
+fig.add_trace(go.Bar(
+    name='F1 Score',
+    x=models,
+    y=f1,
+    marker_color='#7c3aed',
+    width=0.25
 ))
 
 fig.update_layout(
-    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
-    template="plotly_white",
-    height=450
+    barmode='group',
+    template='plotly_white',
+    height=420,
+    margin=dict(l=20, r=20, t=40, b=20),
+    yaxis=dict(title="Score"),
+    xaxis=dict(title="Model"),
+    legend_title="Metrics"
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
-# TRADEOFF GRAPH
-st.subheader("⚖️ Accuracy vs Recall Tradeoff")
-
-fig2 = go.Figure()
-
-fig2.add_trace(go.Scatter(
-    x=accuracy,
-    y=recall,
-    mode='markers+text',
-    text=models,
-    textposition="top center",
-    marker=dict(
-        size=[15,20,18],
-        color=["#2563eb", "#059669", "#7c3aed"]
-    )
-))
-
-fig2.update_layout(
-    xaxis_title="Accuracy",
-    yaxis_title="Recall (Critical for Risk)",
-    template="plotly_white",
-    height=400
-)
-
-st.plotly_chart(fig2, use_container_width=True)
-
-st.success("🏆 Balanced Logistic is optimal for detecting high-risk customers (highest recall)")
+best_model = models[recall.index(max(recall))]
+st.success(f"🏆 Best Model for Risk Detection: {best_model} (Highest Recall)")
 
 st.divider()
 
 # =====================================================
-# 👤 INPUT SECTION (PREMIUM CARDS)
+# 👤 INPUT SECTION
 # =====================================================
 
 col1, col2 = st.columns(2)
@@ -208,9 +190,7 @@ if st.button("🚀 Predict Risk"):
     st.progress(float(probability))
     st.metric("Default Probability", f"{probability:.2%}")
 
-    # -----------------------
     # INSIGHT
-    # -----------------------
     st.subheader("🧠 Insight")
 
     if delay_count > 2:
@@ -220,9 +200,7 @@ if st.button("🚀 Predict Risk"):
     else:
         st.success("Healthy repayment behavior")
 
-    # -----------------------
     # ACTION
-    # -----------------------
     st.subheader("💼 Recommended Action")
 
     if probability > 0.7:
@@ -232,9 +210,7 @@ if st.button("🚀 Predict Risk"):
     else:
         st.success("Customer is safe")
 
-    # -----------------------
     # WHAT-IF SIMULATOR
-    # -----------------------
     st.subheader("🔄 What-If Risk Simulator")
 
     colA, colB = st.columns(2)
