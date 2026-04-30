@@ -3,7 +3,6 @@ import numpy as np
 import joblib
 import os
 import plotly.graph_objects as go
-import pandas as pd
 
 # -----------------------
 # PAGE CONFIG
@@ -18,113 +17,144 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -----------------------
-# HEADER (GRADIENT)
+# HEADER (DARK GREEN FINTECH)
 # -----------------------
 st.markdown("""
 <style>
 .main-title {
-    background: linear-gradient(90deg, #4f46e5, #6366f1);
-    padding: 20px;
-    border-radius: 12px;
+    background: linear-gradient(90deg, #064e3b, #065f46);
+    padding: 22px;
+    border-radius: 14px;
     color: white;
-    font-size: 32px;
-    font-weight: bold;
+    font-size: 34px;
+    font-weight: 700;
     text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.section-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="main-title">💳 Credit Risk Intelligence Dashboard</div>', unsafe_allow_html=True)
 
-st.markdown("AI-powered system to detect **high-risk customers** using machine learning.")
+st.markdown("AI-powered system to detect **high-risk customers** using behavioral patterns.")
 
 st.divider()
 
 # =====================================================
-# 📊 MODEL VISUALS (TOP — IMPORTANT FOR PROFESSOR)
+# 🏆 MODEL PERFORMANCE (RADAR + TRADEOFF)
 # =====================================================
 
-st.subheader("🏆 Model Selection Insights")
+st.subheader("🏆 Model Performance Analysis")
 
-data = pd.DataFrame({
-    "Model": ["Logistic", "Balanced Logistic", "Random Forest"],
-    "Accuracy": [0.81, 0.76, 0.82],
-    "Recall": [0.29, 0.56, 0.48],
-    "F1": [0.43, 0.51, 0.53]
-})
+models = ["Logistic", "Balanced Logistic", "Random Forest"]
+accuracy = [0.81, 0.76, 0.82]
+recall = [0.29, 0.56, 0.48]
+f1 = [0.43, 0.51, 0.53]
 
-metric = st.selectbox("Select Metric", ["Accuracy", "Recall", "F1"])
-
-# BAR CHART
+# RADAR CHART
 fig = go.Figure()
-fig.add_trace(go.Bar(
-    x=data["Model"],
-    y=data[metric],
-    text=[f"{v:.2f}" for v in data[metric]],
-    textposition='outside',
-    marker=dict(color=["#3b82f6", "#10b981", "#6366f1"])
+
+fig.add_trace(go.Scatterpolar(
+    r=[accuracy[0], recall[0], f1[0]],
+    theta=["Accuracy", "Recall", "F1"],
+    fill='toself',
+    name='Logistic'
+))
+
+fig.add_trace(go.Scatterpolar(
+    r=[accuracy[1], recall[1], f1[1]],
+    theta=["Accuracy", "Recall", "F1"],
+    fill='toself',
+    name='Balanced Logistic'
+))
+
+fig.add_trace(go.Scatterpolar(
+    r=[accuracy[2], recall[2], f1[2]],
+    theta=["Accuracy", "Recall", "F1"],
+    fill='toself',
+    name='Random Forest'
 ))
 
 fig.update_layout(
+    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
     template="plotly_white",
-    height=350,
-    margin=dict(l=10, r=10, t=40, b=10)
+    height=450
 )
 
 st.plotly_chart(fig, use_container_width=True)
-
-# BEST MODEL
-best_model = data.loc[data[metric].idxmax(), "Model"]
-st.success(f"🏆 Best Model for {metric}: **{best_model}**")
 
 # TRADEOFF GRAPH
 st.subheader("⚖️ Accuracy vs Recall Tradeoff")
 
 fig2 = go.Figure()
+
 fig2.add_trace(go.Scatter(
-    x=data["Accuracy"],
-    y=data["Recall"],
+    x=accuracy,
+    y=recall,
     mode='markers+text',
-    text=data["Model"],
-    marker=dict(size=14, color=["#3b82f6", "#10b981", "#6366f1"])
+    text=models,
+    textposition="top center",
+    marker=dict(
+        size=[15,20,18],
+        color=["#2563eb", "#059669", "#7c3aed"]
+    )
 ))
 
-fig2.update_layout(template="plotly_white", height=350)
+fig2.update_layout(
+    xaxis_title="Accuracy",
+    yaxis_title="Recall (Critical for Risk)",
+    template="plotly_white",
+    height=400
+)
 
 st.plotly_chart(fig2, use_container_width=True)
+
+st.success("🏆 Balanced Logistic is optimal for detecting high-risk customers (highest recall)")
 
 st.divider()
 
 # =====================================================
-# 👤 INPUT SECTION
+# 👤 INPUT SECTION (PREMIUM CARDS)
 # =====================================================
 
 col1, col2 = st.columns(2)
 
 with col1:
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
     st.subheader("👤 Customer Profile")
 
     limit_bal = st.number_input("Credit Limit ($)", value=0)
     age = st.number_input("Age", value=25)
 
-    sex = st.selectbox("Sex", ["Select...", "Male", "Female"])
-    education = st.selectbox("Education", ["Select...", "Graduate School", "University", "High School", "Other"])
+    sex = st.selectbox("Gender", ["Select...", "Male", "Female"])
+    education = st.selectbox("Education", ["Select...", "Graduate", "University", "High School", "Other"])
     marriage = st.selectbox("Marital Status", ["Select...", "Married", "Single", "Other"])
 
+    st.markdown('</div>', unsafe_allow_html=True)
+
 with col2:
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
     st.subheader("📊 Financial Behavior")
 
-    pay_0 = st.selectbox("Last Month Payment", ["Select...", -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-    pay_2 = st.selectbox("2 Months Ago", ["Select...", -2, -1, 0, 1, 2, 3, 4])
-    pay_3 = st.selectbox("3 Months Ago", ["Select...", -2, -1, 0, 1, 2, 3, 4])
-    pay_4 = st.selectbox("4 Months Ago", ["Select...", -2, -1, 0, 1, 2, 3, 4])
-    pay_5 = st.selectbox("5 Months Ago", ["Select...", -2, -1, 0, 1, 2, 3, 4])
-    pay_6 = st.selectbox("6 Months Ago", ["Select...", -2, -1, 0, 1, 2, 3, 4])
+    pay_0 = st.selectbox("Recent Payment Status", ["Select...", -2, -1, 0, 1, 2, 3])
+    pay_2 = st.selectbox("2 Months Ago", ["Select...", -2, -1, 0, 1, 2])
+    pay_3 = st.selectbox("3 Months Ago", ["Select...", -2, -1, 0, 1, 2])
+    pay_4 = st.selectbox("4 Months Ago", ["Select...", -2, -1, 0, 1, 2])
+    pay_5 = st.selectbox("5 Months Ago", ["Select...", -2, -1, 0, 1, 2])
+    pay_6 = st.selectbox("6 Months Ago", ["Select...", -2, -1, 0, 1, 2])
 
     avg_bill = st.number_input("Average Bill", value=0.0)
     avg_payment = st.number_input("Average Payment", value=0.0)
     avg_delay = st.number_input("Average Delay", value=0.0)
-    delay_count = st.number_input("Delay Count", value=0)
+    delay_count = st.number_input("Delay Frequency", value=0)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
@@ -133,15 +163,12 @@ st.divider()
 # =====================================================
 
 sex_2 = 1 if sex == "Female" else 0
-
 education_2 = 1 if education == "University" else 0
 education_3 = 1 if education == "High School" else 0
 education_4 = 1 if education == "Other" else 0
-
 marriage_2 = 1 if marriage == "Single" else 0
 marriage_3 = 1 if marriage == "Other" else 0
 
-# Handle selects
 def safe_val(x):
     return 0 if x == "Select..." else x
 
@@ -181,10 +208,9 @@ if st.button("🚀 Predict Risk"):
     st.progress(float(probability))
     st.metric("Default Probability", f"{probability:.2%}")
 
-    # =====================================================
-    # 🧠 INSIGHT
-    # =====================================================
-
+    # -----------------------
+    # INSIGHT
+    # -----------------------
     st.subheader("🧠 Insight")
 
     if delay_count > 2:
@@ -194,10 +220,9 @@ if st.button("🚀 Predict Risk"):
     else:
         st.success("Healthy repayment behavior")
 
-    # =====================================================
-    # 💼 ACTION
-    # =====================================================
-
+    # -----------------------
+    # ACTION
+    # -----------------------
     st.subheader("💼 Recommended Action")
 
     if probability > 0.7:
@@ -207,22 +232,28 @@ if st.button("🚀 Predict Risk"):
     else:
         st.success("Customer is safe")
 
-    # =====================================================
-    # 🔄 SCENARIO SIMULATION
-    # =====================================================
+    # -----------------------
+    # WHAT-IF SIMULATOR
+    # -----------------------
+    st.subheader("🔄 What-If Risk Simulator")
 
-    st.subheader("🔄 Scenario Simulation")
+    colA, colB = st.columns(2)
 
-    new_delay = st.slider("Adjust Delay Count", 0, 10, delay_count)
+    with colA:
+        new_delay = st.slider("Change Delay Frequency", 0, 10, delay_count)
+
+    with colB:
+        new_payment = st.number_input("Adjust Avg Payment", value=avg_payment)
 
     new_features = features.copy()
     new_features[0][-1] = new_delay
+    new_features[0][9] = new_payment
 
     new_prob = model.predict_proba(scaler.transform(new_features))[0][1]
 
-    st.write(f"New Risk: {new_prob:.2%}")
+    st.metric("Updated Risk", f"{new_prob:.2%}")
 
     if new_prob < probability:
-        st.success("Risk improves with fewer delays")
+        st.success("Risk improves → good behavior")
     else:
-        st.error("Risk increases")
+        st.error("Risk worsens → concern")
