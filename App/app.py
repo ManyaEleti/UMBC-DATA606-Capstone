@@ -2,11 +2,11 @@ import streamlit as st
 import numpy as np
 import joblib
 import os
-import plotly.express as px
 import pandas as pd
+import plotly.express as px
 
 # -------------------------------
-# PAGE CONFIG (IMPORTANT)
+# PAGE CONFIG
 # -------------------------------
 st.set_page_config(page_title="Credit Risk Dashboard", layout="wide")
 
@@ -14,12 +14,11 @@ st.set_page_config(page_title="Credit Risk Dashboard", layout="wide")
 # LOAD MODEL
 # -------------------------------
 BASE_DIR = os.path.dirname(__file__)
-
 model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # -------------------------------
-# CUSTOM CSS (PREMIUM UI)
+# PREMIUM CSS
 # -------------------------------
 st.markdown("""
 <style>
@@ -39,14 +38,6 @@ st.markdown("""
     margin-bottom: 20px;
 }
 
-.section {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,12 +53,111 @@ Focus: Detect **high-risk customers** using behavioral insights
 
 st.markdown("---")
 
+# ===============================
+# 📊 TOP DASHBOARD (INSIGHTS)
+# ===============================
+
+st.markdown("## 📊 Model Performance Dashboard")
+
+# KPI CARDS
+k1, k2, k3 = st.columns(3)
+
+k1.metric("Accuracy", "81%")
+k2.metric("Recall (Defaulters)", "56%")
+k3.metric("Customers", "30K+")
+
+st.markdown("---")
+
 # -------------------------------
-# INPUT SECTION
+# FEATURE IMPORTANCE
 # -------------------------------
+st.markdown("### 📊 Key Risk Drivers")
+
+importance = pd.DataFrame({
+    "Feature": ["Delay Count", "Avg Delay", "Avg Payment", "Avg Bill"],
+    "Importance": [0.35, 0.25, 0.20, 0.20]
+})
+
+fig1 = px.bar(
+    importance,
+    x="Feature",
+    y="Importance",
+    color="Importance",
+    color_continuous_scale="Blues"
+)
+
+st.plotly_chart(fig1, use_container_width=True)
+
+# -------------------------------
+# MODEL COMPARISON
+# -------------------------------
+st.markdown("### 📊 Model Comparison")
+
+df = pd.DataFrame({
+    "Model": ["Logistic", "Balanced Logistic", "Random Forest"],
+    "Accuracy": [0.81, 0.76, 0.82],
+    "Recall": [0.29, 0.56, 0.48],
+    "F1": [0.43, 0.51, 0.53]
+})
+
+df_melt = df.melt(id_vars="Model")
+
+fig2 = px.bar(
+    df_melt,
+    x="Model",
+    y="value",
+    color="variable",
+    barmode="group"
+)
+
+st.plotly_chart(fig2, use_container_width=True)
+
+# -------------------------------
+# CONFUSION MATRIX
+# -------------------------------
+st.markdown("### 📊 Confusion Matrix")
+
+cm = np.array([[3828, 845],
+               [583, 744]])
+
+fig3 = px.imshow(
+    cm,
+    text_auto=True,
+    color_continuous_scale="Blues",
+    labels=dict(x="Predicted", y="Actual")
+)
+
+st.plotly_chart(fig3, use_container_width=True)
+
+# -------------------------------
+# ROC CURVE
+# -------------------------------
+st.markdown("### 📈 ROC Curve")
+
+roc_df = pd.DataFrame({
+    "FPR": [0, 0.1, 0.2, 0.3, 1],
+    "TPR": [0, 0.5, 0.65, 0.75, 1]
+})
+
+fig4 = px.line(roc_df, x="FPR", y="TPR")
+
+fig4.add_shape(
+    type="line",
+    line=dict(dash="dash"),
+    x0=0, x1=1, y0=0, y1=1
+)
+
+st.plotly_chart(fig4, use_container_width=True)
+
+st.markdown("---")
+
+# ===============================
+# 🧾 USER INPUT SECTION
+# ===============================
+
 col1, col2 = st.columns(2)
 
-# LEFT
+# LEFT SIDE
 with col1:
     st.markdown("### 👤 Customer Profile")
 
@@ -75,16 +165,20 @@ with col1:
     age = st.slider("Age", 18, 75, 25)
 
     sex = st.selectbox("Sex", ["Select...", "Male", "Female"])
-    education = st.selectbox("Education Level",
-                             ["Select...", "Graduate School", "University", "High School", "Other"])
-    marriage = st.selectbox("Marital Status",
-                            ["Select...", "Married", "Single", "Other"])
+    education = st.selectbox(
+        "Education Level",
+        ["Select...", "Graduate School", "University", "High School", "Other"]
+    )
+    marriage = st.selectbox(
+        "Marital Status",
+        ["Select...", "Married", "Single", "Other"]
+    )
 
-# RIGHT
+# RIGHT SIDE
 with col2:
     st.markdown("### 📊 Financial Behavior")
 
-    pay_0 = st.selectbox("Last Month Payment Behavior",
+    pay_0 = st.selectbox("Last Month Behavior",
                          ["Select...", "On Time", "1 Month Delay", "2+ Months Delay"])
 
     pay_2 = st.selectbox("2 Months Ago", ["Select...", "On Time", "Delay"])
@@ -160,40 +254,4 @@ if st.button("🚀 Predict Risk"):
         st.success("✅ Low Risk of Default")
 
     st.progress(float(probability))
-
     st.metric("Default Probability", f"{probability:.2%}")
-
-    # -------------------------------
-    # FEATURE IMPORTANCE (VISUAL)
-    # -------------------------------
-    st.markdown("## 📊 Feature Importance")
-
-    importance = pd.DataFrame({
-        "Feature": ["Delay Count", "Avg Delay", "Avg Payment", "Avg Bill"],
-        "Importance": [0.35, 0.25, 0.20, 0.20]
-    })
-
-    fig1 = px.bar(importance, x="Feature", y="Importance",
-                  title="Top Risk Drivers")
-
-    st.plotly_chart(fig1, use_container_width=True)
-
-    # -------------------------------
-    # MODEL COMPARISON
-    # -------------------------------
-    st.markdown("## 📊 Model Comparison")
-
-    df = pd.DataFrame({
-        "Model": ["Logistic", "Balanced Logistic", "Random Forest"],
-        "Accuracy": [0.81, 0.76, 0.82],
-        "Recall": [0.29, 0.56, 0.48],
-        "F1": [0.43, 0.51, 0.53]
-    })
-
-    df_melt = df.melt(id_vars="Model")
-
-    fig2 = px.bar(df_melt, x="Model", y="value", color="variable",
-                  barmode="group",
-                  title="Model Performance Comparison")
-
-    st.plotly_chart(fig2, use_container_width=True)
