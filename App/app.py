@@ -187,7 +187,7 @@ with col2:
     pay_5 = st.selectbox("5 Months Ago", [-2, -1, 0, 1, 2])
     pay_6 = st.selectbox("6 Months Ago", [-2, -1, 0, 1, 2])
 
-    avg_bill = st.number_input("Avg Bill", value=0.0)
+    avg_bill = st.number_input("Avg Bill", value= $0.0)
     avg_payment = st.number_input("Avg Payment", value=0.0)
     avg_delay = st.number_input("Avg Delay", value=0.0)
     delay_count = st.number_input("Delay Count", value=0)
