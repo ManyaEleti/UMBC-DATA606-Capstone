@@ -88,17 +88,22 @@ div[data-baseweb="select"]:focus-within {
 
 /* Button */
 .stButton > button {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    color: white !important;
-    border-radius: 10px;
-    font-weight: 700;
-    padding: 12px 24px;
-    border: none;
-    font-size: 20px;
-    text-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    border: none !important;
+    padding: 12px 28px !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    -webkit-text-fill-color: white !important;
+    opacity: 1 !important;
 }
 
-.stButton > button:hover {
+.stButton > button p {
+    color: white !important;
+}
+
+.stButton > button span {
     color: white !important;
 }
 
