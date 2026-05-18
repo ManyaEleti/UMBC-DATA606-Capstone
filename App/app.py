@@ -91,10 +91,11 @@ div[data-baseweb="select"]:focus-within {
     background: linear-gradient(135deg, #2563eb, #4f46e5);
     color: white !important;
     border-radius: 10px;
-    font-weight: 600;
-    padding: 10px 20px;
+    font-weight: 700;
+    padding: 12px 24px;
     border: none;
-    font-size: 18px;
+    font-size: 20px;
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.3);
 }
 
 .stButton > button:hover {
