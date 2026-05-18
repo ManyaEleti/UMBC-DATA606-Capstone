@@ -23,7 +23,7 @@ Prepared for UMBC Data Science Master Degree Capstone by Dr. Chaojie (Jay) Wang
   https://github.com/ManyaEleti/UMBC-DATA606-Capstone
 
 - **LinkedIn Profile**  
-  Add LinkedIn link here
+  www.linkedin.com/in/lakshmi-manya-eleti-116142241
 
 - **PowerPoint Presentation**  
   Add presentation link here
