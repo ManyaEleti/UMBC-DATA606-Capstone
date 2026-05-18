@@ -47,15 +47,6 @@ st.markdown("""
     margin-bottom: 20px;
 }
 
-/* Cards */
-.section-card {
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-    margin-bottom: 10px;
-}
-
 /* Text */
 h1, h2, h3 {
     color: #0f172a !important;
@@ -98,10 +89,16 @@ div[data-baseweb="select"]:focus-within {
 /* Button */
 .stButton > button {
     background: linear-gradient(135deg, #2563eb, #4f46e5);
-    color: white;
+    color: white !important;
     border-radius: 10px;
     font-weight: 600;
     padding: 10px 20px;
+    border: none;
+    font-size: 18px;
+}
+
+.stButton > button:hover {
+    color: white !important;
 }
 
 /* Metric */
@@ -186,7 +183,7 @@ payment_status = {
     "Minimum Payment": 0,
     "1 Month Delay": 1,
     "2 Months Delay": 2,
-    "3 Months Delay": 3
+    "3+ Months Delay": 3
 }
 
 # =========================
@@ -199,13 +196,11 @@ col1, col2 = st.columns(2)
 # =========================
 with col1:
 
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-
     st.subheader("Customer Profile")
 
     limit_bal = st.number_input(
         "Credit Limit ($)",
-        value=0,
+        value=1000,
         format="%d"
     )
 
@@ -229,14 +224,10 @@ with col1:
         ["Married", "Single", "Other"]
     )
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
 # =========================
 # RIGHT COLUMN
 # =========================
 with col2:
-
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     st.subheader("Financial Behavior")
 
@@ -280,28 +271,26 @@ with col2:
 
     avg_bill = st.number_input(
         "Avg Bill ($)",
-        value=0.0,
+        value=200.0,
         format="%.2f"
     )
 
     avg_payment = st.number_input(
         "Avg Payment ($)",
-        value=0.0,
+        value=100.0,
         format="%.2f"
     )
 
     avg_delay = st.number_input(
         "Avg Delay",
-        value=0.0,
+        value=1.0,
         format="%.2f"
     )
 
     delay_count = st.number_input(
         "Delay Count",
-        value=0
+        value=1
     )
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
@@ -360,7 +349,7 @@ if st.button("Predict Risk"):
         st.success("Low Risk Customer")
 
     st.metric(
-        "Default Probability (%)",
+        "Default Probability",
         f"{prob:.2%}"
     )
 
