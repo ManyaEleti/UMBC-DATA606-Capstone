@@ -17,7 +17,7 @@ model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "scaler.pkl"))
 
 # =========================
-# CSS (FINAL POLISHED UI)
+# PAGE STYLING
 # =========================
 st.markdown("""
 <style>
@@ -56,28 +56,23 @@ st.markdown("""
     margin-bottom: 10px;
 }
 
-/* Prevent empty cards */
-.section-card:empty {
-    display: none;
-}
-
 /* Text */
 h1, h2, h3 {
     color: #0f172a !important;
 }
+
 label, p {
     color: #334155 !important;
 }
 
-/* =========================
-   UNIFIED INPUT STYLING
-   ========================= */
-
+/* Input Styling */
 div[data-baseweb="input"],
 div[data-baseweb="select"],
 div[data-baseweb="select"] > div,
 div[data-baseweb="input"] > div,
-input, select, textarea {
+input,
+select,
+textarea {
 
     background-color: #dbe2ea !important;
     border: 1px solid #cbd5e1 !important;
@@ -85,18 +80,15 @@ input, select, textarea {
     color: #0f172a !important;
 }
 
-/* Fix inner input */
 input {
     background-color: #dbe2ea !important;
 }
 
-/* Remove white patches */
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div {
     background-color: transparent !important;
 }
 
-/* Focus effect */
 div[data-baseweb="input"]:focus-within,
 div[data-baseweb="select"]:focus-within {
     border: 1px solid #2563eb !important;
@@ -145,35 +137,29 @@ f1 = [0.43, 0.51, 0.53]
 
 fig = go.Figure()
 
-fig.add_trace(
-    go.Bar(
-        name='Accuracy',
-        x=models,
-        y=accuracy,
-        marker_color='#3b82f6',
-        width=0.25
-    )
-)
+fig.add_trace(go.Bar(
+    name='Accuracy',
+    x=models,
+    y=accuracy,
+    marker_color='#3b82f6',
+    width=0.25
+))
 
-fig.add_trace(
-    go.Bar(
-        name='Recall',
-        x=models,
-        y=recall,
-        marker_color='#10b981',
-        width=0.25
-    )
-)
+fig.add_trace(go.Bar(
+    name='Recall',
+    x=models,
+    y=recall,
+    marker_color='#10b981',
+    width=0.25
+))
 
-fig.add_trace(
-    go.Bar(
-        name='F1 Score',
-        x=models,
-        y=f1,
-        marker_color='#8b5cf6',
-        width=0.25
-    )
-)
+fig.add_trace(go.Bar(
+    name='F1 Score',
+    x=models,
+    y=f1,
+    marker_color='#8b5cf6',
+    width=0.25
+))
 
 fig.update_layout(
     barmode='group',
@@ -192,10 +178,25 @@ st.success(f"Best model for risk detection: {best_model} (highest recall)")
 st.divider()
 
 # =========================
+# PAYMENT STATUS LABELS
+# =========================
+payment_status = {
+    "No Bill / No Usage (-2)": -2,
+    "Paid On Time (-1)": -1,
+    "Minimum Payment (0)": 0,
+    "1 Month Delay (1)": 1,
+    "2 Months Delay (2)": 2,
+    "3 Months Delay (3)": 3
+}
+
+# =========================
 # INPUT SECTION
 # =========================
 col1, col2 = st.columns(2)
 
+# =========================
+# LEFT COLUMN
+# =========================
 with col1:
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
@@ -230,41 +231,52 @@ with col1:
 
     st.markdown('</div>', unsafe_allow_html=True)
 
+# =========================
+# RIGHT COLUMN
+# =========================
 with col2:
 
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
 
     st.subheader("Financial Behavior")
 
-    pay_0 = st.selectbox(
+    pay_0_label = st.selectbox(
         "Recent Status",
-        [-2, -1, 0, 1, 2, 3]
+        list(payment_status.keys())
     )
 
-    pay_2 = st.selectbox(
+    pay_2_label = st.selectbox(
         "2 Months Ago",
-        [-2, -1, 0, 1, 2]
+        list(payment_status.keys())
     )
 
-    pay_3 = st.selectbox(
+    pay_3_label = st.selectbox(
         "3 Months Ago",
-        [-2, -1, 0, 1, 2]
+        list(payment_status.keys())
     )
 
-    pay_4 = st.selectbox(
+    pay_4_label = st.selectbox(
         "4 Months Ago",
-        [-2, -1, 0, 1, 2]
+        list(payment_status.keys())
     )
 
-    pay_5 = st.selectbox(
+    pay_5_label = st.selectbox(
         "5 Months Ago",
-        [-2, -1, 0, 1, 2]
+        list(payment_status.keys())
     )
 
-    pay_6 = st.selectbox(
+    pay_6_label = st.selectbox(
         "6 Months Ago",
-        [-2, -1, 0, 1, 2]
+        list(payment_status.keys())
     )
+
+    # Convert labels to numeric values
+    pay_0 = payment_status[pay_0_label]
+    pay_2 = payment_status[pay_2_label]
+    pay_3 = payment_status[pay_3_label]
+    pay_4 = payment_status[pay_4_label]
+    pay_5 = payment_status[pay_5_label]
+    pay_6 = payment_status[pay_6_label]
 
     avg_bill = st.number_input(
         "Avg Bill ($)",
@@ -305,6 +317,9 @@ education_4 = 1 if education == "Other" else 0
 marriage_2 = 1 if marriage == "Single" else 0
 marriage_3 = 1 if marriage == "Other" else 0
 
+# =========================
+# FEATURE ARRAY
+# =========================
 features = np.array([[
     limit_bal,
     age,
