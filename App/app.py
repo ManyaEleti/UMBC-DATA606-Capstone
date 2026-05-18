@@ -182,11 +182,11 @@ st.divider()
 # =========================
 payment_status = {
     "No Bill / No Usage": -2,
-    "Paid On Time (-1)": -1,
-    "Minimum Payment (0)": 0,
-    "1 Month Delay (1)": 1,
-    "2 Months Delay (2)": 2,
-    "3 Months Delay (3)": 3
+    "Paid On Time": -1,
+    "Minimum Payment": 0,
+    "1 Month Delay": 1,
+    "2 Months Delay": 2,
+    "3 Months Delay": 3
 }
 
 # =========================
