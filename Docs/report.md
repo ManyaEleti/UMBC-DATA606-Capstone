@@ -29,8 +29,7 @@ Prepared for UMBC Data Science Master Degree Capstone by Dr. Chaojie (Jay) Wang
  [Presentation file](Presentation.pdf)
 
 - **YouTube Presentation Video**  
-  Add YouTube link here
-
+[ YouTube link ](https://youtu.be/ahR29T7XuTA)
 ---
 
 # 2. Background
