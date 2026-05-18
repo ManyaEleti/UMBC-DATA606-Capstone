@@ -181,7 +181,7 @@ st.divider()
 # PAYMENT STATUS LABELS
 # =========================
 payment_status = {
-    "No Bill / No Usage (-2)": -2,
+    "No Bill / No Usage": -2,
     "Paid On Time (-1)": -1,
     "Minimum Payment (0)": 0,
     "1 Month Delay (1)": 1,
