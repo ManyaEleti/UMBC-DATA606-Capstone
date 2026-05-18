@@ -4,7 +4,7 @@
 
 This repository contains the capstone project for DATA 606 – Capstone in Data Science at the University of Maryland, Baltimore County (UMBC).
 
-The project focuses on understanding how feature engineering improves machine learning performance in credit default risk prediction using behavioral financial indicators and repayment patterns.
+The project focuses on understanding how feature engineering improves machine learning model performance in credit default risk prediction using behavioral financial indicators and repayment patterns.
 
 An interactive Streamlit dashboard was also developed to demonstrate real-time credit risk analysis and prediction.
 
@@ -163,7 +163,7 @@ Special emphasis was placed on recall because detecting actual defaulters is cri
 
 # 4. Dashboard Development
 
-📁 `Notebooks/04_streamlit_dashboard.ipynb`
+📁 `Notebooks/04_streamlit_dashboard.ipynb`  
 📁 `App/app.py`
 
 An interactive Streamlit dashboard was developed for real-time credit risk prediction.
@@ -228,8 +228,8 @@ The results show that engineered behavioral features can outperform simply using
 ## 1. Clone the Repository
 
 ```bash
-git clone <repository-link>
-cd <repository-name>
+git clone https://github.com/ManyaEleti/UMBC-DATA606-Capstone.git
+cd UMBC-DATA606-Capstone
 ```
 
 ---
@@ -248,6 +248,14 @@ pip install -r requirements.txt
 cd App
 streamlit run app.py
 ```
+
+---
+
+# GitHub Repository
+
+Repository Link:
+
+https://github.com/ManyaEleti/UMBC-DATA606-Capstone
 
 ---
 
