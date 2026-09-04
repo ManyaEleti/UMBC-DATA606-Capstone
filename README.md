@@ -1,4 +1,3 @@
-# UMBC-DATA606 Capstone
 
 # Evaluating the Impact of Feature Engineering on Machine Learning Model Performance
 
